@@ -11,8 +11,8 @@ const csv = require('csv-parser');
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Lenovo710?',
-    database: 'testing'
+    password: 'martin123',
+    database: 'playlistdata'
 });
 
 //Connect to MySQL
@@ -27,7 +27,7 @@ let artistDataFinal, artistDataInitial = [];
 let trackDataFinal, trackDataInitial = [];
 
 let playlists;
-let sqlCheck = 'SELECT * FROM playlistdata';
+let sqlCheck = 'SELECT * FROM playlistnames';
 let query = db.query(sqlCheck, (err, results) => {
     if(err) throw err;
     playlists = results;
@@ -35,7 +35,7 @@ let query = db.query(sqlCheck, (err, results) => {
 
 
 
-fs.createReadStream('raw_artists.csv')
+fs.createReadStream('lab3-data/raw_artists.csv')
 .pipe(csv())
 .on('data', (rows) => {
     artistDataInitial.push(rows)
@@ -54,7 +54,7 @@ fs.createReadStream('raw_artists.csv')
 .on ('end', () => {
 });
 
-fs.createReadStream('genres.csv')
+fs.createReadStream('lab3-data/genres.csv')
 .pipe(csv())
 .on('data', (rows) => {
     genreDataInitial.push(rows)
@@ -69,7 +69,7 @@ fs.createReadStream('genres.csv')
 .on ('end', () => {
 });
 
-fs.createReadStream('raw_tracks.csv')
+fs.createReadStream('lab3-data/raw_tracks.csv')
 .pipe(csv())
 .on('data', (rows) => {
     trackDataInitial.push(rows)
@@ -95,7 +95,7 @@ fs.createReadStream('raw_tracks.csv')
 
 
 //Setup serving front-end code
-app.use('/', express.static('static'));
+app.use('/', express.static('src'));
 
 //Setup middleware to do logging
 app.use((req, res, next) => { //For all routes
@@ -226,7 +226,7 @@ router.put('/:name', (req, res) => {
             addPlaylist(req.params.name);
         })
         
-        let sqlUpdate = 'SELECT * FROM playlistdata';
+        let sqlUpdate = 'SELECT * FROM playlistnames';
         query = db.query(sqlUpdate, (err, results) => {
             if(err) throw err;
             let newListToAdd = {
@@ -319,7 +319,7 @@ router.delete('/:name', (req, res) => {
         res.sendStatus(404);
     } else if(identical == true) {
         let sql = 'DROP TABLE ' + req.params.name;
-        let sqlDeleteRow = 'DELETE FROM playlistdata WHERE id =' + temp;
+        let sqlDeleteRow = 'DELETE FROM playlistnames WHERE id =' + temp;
         let query = db.query(sqlDeleteRow, (err) => {
             if(err) throw err;
             res.send("Deleted playlist " + req.params.name);
@@ -419,8 +419,8 @@ function timeFormat(duration)
 //Add playlist name to table
 function addPlaylist(newList) {
     let sql = `
-    INSERT INTO playlistdata(
-        playlistdata
+    INSERT INTO playlistnames(
+        playlistname
     )
     VALUES(
         '${newList}'
