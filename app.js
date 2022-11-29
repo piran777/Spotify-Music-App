@@ -11,8 +11,8 @@ const csv = require('csv-parser');
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'martin123',
-    database: 'playlistdata'
+    password: 'Lenovo710?',
+    database: 'testing'
 });
 
 //Connect to MySQL
