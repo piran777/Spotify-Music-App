@@ -35,7 +35,7 @@ let query = db.query(sqlCheck, (err, results) => {
 
 
 
-fs.createReadStream('raw_artists.csv')
+fs.createReadStream('lab3-data/raw_artists.csv')
 .pipe(csv())
 .on('data', (rows) => {
     artistDataInitial.push(rows)
@@ -54,7 +54,7 @@ fs.createReadStream('raw_artists.csv')
 .on ('end', () => {
 });
 
-fs.createReadStream('genres.csv')
+fs.createReadStream('lab3-data/genres.csv')
 .pipe(csv())
 .on('data', (rows) => {
     genreDataInitial.push(rows)
@@ -69,7 +69,7 @@ fs.createReadStream('genres.csv')
 .on ('end', () => {
 });
 
-fs.createReadStream('raw_tracks.csv')
+fs.createReadStream('lab3-data/raw_tracks.csv')
 .pipe(csv())
 .on('data', (rows) => {
     trackDataInitial.push(rows)
@@ -112,6 +112,15 @@ app.get('/createdb', (req, res) => {
     db.query(sql, err => {
         if (err) throw err;
         res.send('Database Created');
+    })
+})
+
+//Create Table to store playlistnames
+app.get('/createtable', (req, res) => {
+    let sql = 'CREATE TABLE playlistnames(playlistname VARCHAR(30) NOT NULL, id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
+    db.query(sql, err => {
+        if (err) throw err;
+        res.send('Table Created');
     })
 })
 
