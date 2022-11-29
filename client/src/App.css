@@ -176,3 +176,51 @@ input[type="search"]::placeholder {
 .playlistCenter:hover {
     background-color: rgb(175, 174, 174);
 }
+
+
+.App{
+    text-align: center;
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+
+}
+
+.auth-container, .authForm, .authFormReg{
+    
+    display: flex;
+    flex-direction: column;
+    min-height: 50vh;
+    align-items: center;
+    justify-content: center;
+     ;
+}
+
+
+label{
+    text-align: left;
+    padding: 0.25rem 0;
+}
+
+input{
+    
+    padding: 1rem;
+    border: none;
+}
+
+button{
+    border: none;
+    background-color: #D3D3D3;
+    padding: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.linkBtn{
+    
+    background: none;
+    color:black;
+    text-decoration: underline;
+}
+

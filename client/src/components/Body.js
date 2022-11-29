@@ -1,7 +1,11 @@
 import React from 'react';
-
+const handleSubmit = (e) =>{
+    e.preventDefault();
+  
+  }
 function Body() {
     return (
+        <form onSubmit = {handleSubmit}>
         <div>
             <div className = "admin">
                 <span>
@@ -61,6 +65,7 @@ function Body() {
 
             <script defer src = "App.js"></script>
         </div>
+        </form>
     )
 }
 

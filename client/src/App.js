@@ -10,9 +10,11 @@ function App() {
 
   const[currentForm,setCurrentForm]=useState('Login')
 
+
   const toggleForm = (formName) =>{
       setCurrentForm(formName);
   }
+ 
 
   const [backendData, setBackendData] = useState([{}])
 
@@ -30,8 +32,11 @@ function App() {
     <div>
        <Header />
       {
-        currentForm == "Login" ? <Login onFormSwitch={toggleForm} /> : <Register />
+        currentForm == "Login" ? <Login onFormSwitch = {toggleForm} /> : <Register onFormSwitch = {toggleForm}/>
+        &&
+        currentForm == "Body" ? <Body onFormSwitch = {toggleForm}/> : <Register onFormSwitch = {toggleForm}/>
       }
+      
      
      
      
