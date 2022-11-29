@@ -1,64 +1,36 @@
-import React, {Component} from 'react';
+import React, {useEffect,useState} from 'react';
 import './App.css';
 import Header from './components/Header';
 import Body from './components/Body';
 import Footer from './components/Footer';
 
 function App() {
+  const [backendData, setBackendData] = useState([{}])
+
+  useEffect(() => {
+    fetch('/api/genres').then(
+      response => response.json()
+    ).then(
+      data => {
+        setBackendData(data)
+      }
+    )
+  },[])
+
   return (
-    <>
+    <div>
       <Header />
       <Body />
+      {(typeof backendData.title === 'undefined') ?(
+        <p>loading</p>
+      ):(
+        backendData.title.map((user,i)=>(
+          <p key ={i}>{user}</p>
+        ))
+      )}
       <Footer />
-    </>
+    </div>
   );
 }
 
-/*
-class App extends Component{
-
-  state = {
-    allPlaylistsUsed: []
-  }
-  
-  constructor(){
-    super();
-    const t = document.getElementById('allPlaylists');
-    t.replaceChildren('');
-  
-    fetch('/api/playlist')
-    .then(res => res.json()
-    .then(data => {
-        data.forEach(e => {
-            const row = document.createElement('tr');
-            const item = document.createElement('th');
-            item.classList.add("playlistCenter");
-            item.addEventListener("click", function(){
-                chosenPlaylist = (item.innerText.substring(0, item.innerText.indexOf(' •')));
-                getPlaylistData(chosenPlaylist);
-            });
-            item.appendChild(document.createTextNode(`${e.name} • ${e.counter} songs, ${e.timer} duration`));
-            row.appendChild(item);
-            t.appendChild(row);
-        });
-    })
-    )
-  
-    this.state={
-      allPlaylistsUsed: data,
-      
-    
-    }
-  }
-  
-  render() {
-    return (
-      <div className="App">
-      {this.state.allPlaylistsUsed}
-      
-      </div>
-    ); //parenthesis returns everything inside the parenthesis
-  }
-}
-*/
 export default App;
