@@ -23,13 +23,15 @@ function Body() {
                 <div className = "playlist">
                     <div>
                         <table id = "playlistTracks">
-                            <thead id = "heading">
+                            <thead>
+                            <tr id = "heading">
                                 <th className = "heading_num">#</th>
                                 <th className = "heading_image"></th>
                                 <th className = "heading_title">Title</th>
                                 <th className = "heading_album">Album</th>
                                 <th className = "heading_duration">Duration</th>
                                 <th className = "heading_add"></th>
+                            </tr>
                             </thead>
                         </table>
                     </div>
