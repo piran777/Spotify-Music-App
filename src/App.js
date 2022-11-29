@@ -1,9 +1,4 @@
 import React, {Component} from 'react';
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'localhost:3000/api/playlist/allPlaylists'
-})
 
 class App extends Component{
 
@@ -35,8 +30,8 @@ constructor(){
   )
 
   this.state={
-    items: [],
-    isLoaded: false,
+    allPlaylistsUsed: data,
+    
   
   }
 }
@@ -44,7 +39,7 @@ constructor(){
 render() {
   return (
     <div className="App">
-    
+    {this.state.allPlaylistsUsed}
     
     </div>
   ); //parenthesis returns everything inside the parenthesis
