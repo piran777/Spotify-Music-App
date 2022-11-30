@@ -1,4 +1,6 @@
 import React, {useEffect,useState} from 'react';
+import {Route, Link, Routes, useParams} from 'react-router-dom';
+import ReactDOM from "react-dom/client";
 import './App.css';
 import Header from './components/Header';
 import Body from './components/Body';
@@ -8,8 +10,10 @@ import {Register} from './Register';
 
 function App() {
 
-  const[currentForm,setCurrentForm]=useState('Login')
 
+  const params = useParams();
+  const[currentForm,setCurrentForm]=useState('Login')
+console.log(params)
 
   const toggleForm = (formName) =>{
       setCurrentForm(formName);
@@ -19,13 +23,14 @@ function App() {
   const [backendData, setBackendData] = useState([{}])
 
   useEffect(() => {
-    fetch('/api/genres').then(
-      response => response.json()
-    ).then(
-      data => {
-        setBackendData(data)
-      }
-    )
+    
+        fetch(`/api/genres`)
+        .then(res => res.json()
+        .then(data => {
+            setBackendData(data);
+        })
+        )
+    
   },[])
 
   return (
@@ -36,7 +41,13 @@ function App() {
         &&
         currentForm == "Body" ? <Body onFormSwitch = {toggleForm}/> : <Register onFormSwitch = {toggleForm}/>
       }
-      
+      {(typeof backendData.title === 'undefined') ?(
+ <p>loading</p>
+):(
+ backendData.title.map((user,i)=>(
+   <p key = {i}>{user}</p>
+ ))
+)} 
      
      
      

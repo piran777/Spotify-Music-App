@@ -2,7 +2,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const sanitizeHtml = require('sanitize-html');
 const app = express();
-const port = 5000;
+const port = 3000;
 const router = express.Router();
 const fs = require('fs');
 const csv = require('csv-parser');
@@ -95,7 +95,7 @@ fs.createReadStream('lab3-data/raw_tracks.csv')
 
 
 //Setup serving front-end code
-app.use('/', express.static('src'));
+app.use('/', express.static('client'));
 
 //Setup middleware to do logging
 app.use((req, res, next) => { //For all routes
