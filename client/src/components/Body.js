@@ -1,9 +1,8 @@
 import React from 'react';
-
 const handleSubmit = (e) =>{
     e.preventDefault();
+  
   }
-
 function Body() {
     return (
         <form onSubmit = {handleSubmit}>

@@ -15,17 +15,17 @@ let chosenPlaylist = '';
 let chosenTracks = [];
 function App() {
   const ref = useRef();
-  //const params = useParams();
+  const params = useParams();
   const[currentForm,setCurrentForm] = useState('Login')
-  //console.log(params)
+console.log(params)
 
-  const [track,setMessage] = useState('')
+const [track,setMessage] = useState('')
 
-  const handleChange = e=>{
-    setMessage(e.target.value);
-    setBackendData(e.target.value);
-    console.log('Value is: ', e.target.value);
-  }
+const handleChange = e=>{
+  setMessage(e.target.value)
+
+  console.log('Value is: ', e.target.value);
+}
 
   const toggleForm = (formName) =>{
       setCurrentForm(formName);
@@ -64,17 +64,17 @@ function App() {
 //    console.log(e.target.value);
 // }
 
-  const [backendData, setBackendData] = useState('[{}]')
+  const [backendData, setBackendData] = useState([{}])
 
-  useEffect(() => {
+  const getByTrackName = useEffect(() => {
+    
     const input = document.getElementById('track').value
     let list = document.getElementById('inventory')
     list.replaceChildren('')
-
-    if(track != '') {
-      fetch(`/api/track/trackTitle/${track}`)
-      .then(res => res.json()
-      .then(data => {
+    
+    fetch(`/api/track/trackTitle/${track}`)
+    .then(res => res.json()
+    .then(data => {
         const l = document.getElementById('inventory');
         
         console.log(data)       
@@ -90,10 +90,12 @@ function App() {
             })
           )
         })
+       
     })
     )
-  }
-  }, [track])
+    
+    
+  },[track])
 
   
 
@@ -101,21 +103,26 @@ function App() {
     <div>
        <Header />
       {
-        currentForm === "Login" ? <Login onFormSwitch = {toggleForm} /> : <Register onFormSwitch = {toggleForm}/>
+        currentForm == "Login" ? <Login onFormSwitch = {toggleForm} /> : <Register onFormSwitch = {toggleForm}/>
         &&
-        currentForm === "Body" ? <Body onFormSwitch = {toggleForm}/> : <Register onFormSwitch = {toggleForm}/>
+        currentForm == "Body" ? <Body onFormSwitch = {toggleForm}/> : <Register onFormSwitch = {toggleForm}/>
       }
       {
         <div className = "app">
       <span>
+<<<<<<< HEAD
       <input type = "text" id = "track" placeholder = "Search by Track Name" className = "search" name ="track"  onChange={handleChange} value = {track}></input>
       <button className = "trackBtn" id = "searchTrack">Search</button>
+=======
+      <input type = "text" id = "track" placeholder = "Search by Track Name" className = "search" name ="track" onChange={handleChange} value = {track} />
+      <button className = "trackBtn" id ="searchTrack" onClick={handleSubmit}>Search</button>
+>>>>>>> 0dc4c5151434ee4d6f7bb0ff665483e28f6c05e6
       <ol id = "inventory"></ol>
       </span>
       </div>
 }
       {/* onClick = {getByTrackName}
-       */}
+       it works*/}
      
      
     
