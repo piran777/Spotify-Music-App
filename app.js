@@ -145,7 +145,6 @@ app.get('/api/tracks/:track_id', (req, res) => {
     const id = req.params.track_id;
     const track = trackDataFinal.find(p => p.track_id === id);
     if(track) {
-        console.log(track);
         res.send(track);
     } else {
         res.status(404).send(`Track with ID ${id} was not found`);

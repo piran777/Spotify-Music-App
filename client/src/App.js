@@ -79,9 +79,16 @@ function App() {
         
         console.log(data)       
         data.forEach(element =>{
-            const item = document.createElement('li');//need to add a list
-            item.appendChild(document.createTextNode(`Track_ID: ${element.track_id}, Track_Title: ${element.track_title}`));     
+          fetch(`/api/tracks/${element}`)
+            .then(res => res.json()
+            .then(trackData => {
+              trackData.forEach(e => {
+                const item = document.createElement('li');//need to add a list
+                item.appendChild(document.createTextNode(`Track_ID: ${e.track_id}, Track_Title: ${e.track_title}`));     
                 l.appendChild(item)
+              })
+            })
+          )
         })
     })
     )
@@ -102,7 +109,7 @@ function App() {
         <div className = "app">
       <span>
       <input type = "text" id = "track" placeholder = "Search by Track Name" className = "search" name ="track"  onChange={handleChange} value = {track}></input>
-      <button className = "trackBtn" id ="searchTrack" on> </button>
+      <button className = "trackBtn" id = "searchTrack">Search</button>
       <ol id = "inventory"></ol>
       </span>
       </div>
