@@ -175,7 +175,7 @@ app.get('/api/tracks/album/:album_title', (req, res) => {
 });
 
 //Get track ID from track title
-app.get('/api/tracks/track/:track_title', (req, res) => {
+app.get('/api/track/trackTitle/:track_title', (req, res) => {
     const title = String.prototype.toLowerCase.call(req.params.track_title);
     let max = 0;
     let trackArray = [];
