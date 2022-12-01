@@ -15,17 +15,17 @@ let chosenPlaylist = '';
 let chosenTracks = [];
 function App() {
   const ref = useRef();
-  const params = useParams();
+  //const params = useParams();
   const[currentForm,setCurrentForm] = useState('Login')
-console.log(params)
+  //console.log(params)
 
-const [track,setMessage] = useState('')
+  const [track,setMessage] = useState('')
 
-const handleChange = e=>{
-  setMessage(e.target.value)
-
-  console.log('Value is: ', e.target.value);
-}
+  const handleChange = e=>{
+    setMessage(e.target.value);
+    setBackendData(e.target.value);
+    console.log('Value is: ', e.target.value);
+  }
 
   const toggleForm = (formName) =>{
       setCurrentForm(formName);
@@ -64,33 +64,29 @@ const handleChange = e=>{
 //    console.log(e.target.value);
 // }
 
-  const [backendData, setBackendData] = useState([{}])
+  const [backendData, setBackendData] = useState('[{}]')
 
-  const getByTrackName = useEffect(() => {
-    
+  useEffect(() => {
     const input = document.getElementById('track').value
     let list = document.getElementById('inventory')
     list.replaceChildren('')
-    
-    fetch(`/api/track/trackTitle/${track}`)
-    .then(res => res.json()
-    .then(data => {
+
+    if(track != '') {
+      fetch(`/api/track/trackTitle/${track}`)
+      .then(res => res.json()
+      .then(data => {
         const l = document.getElementById('inventory');
         
         console.log(data)       
         data.forEach(element =>{
-            
             const item = document.createElement('li');//need to add a list
             item.appendChild(document.createTextNode(`Track_ID: ${element.track_id}, Track_Title: ${element.track_title}`));     
                 l.appendChild(item)
-              // s
         })
-       
     })
     )
-    
-    
-  },[])
+  }
+  }, [track])
 
   
 
@@ -98,14 +94,14 @@ const handleChange = e=>{
     <div>
        <Header />
       {
-        currentForm == "Login" ? <Login onFormSwitch = {toggleForm} /> : <Register onFormSwitch = {toggleForm}/>
+        currentForm === "Login" ? <Login onFormSwitch = {toggleForm} /> : <Register onFormSwitch = {toggleForm}/>
         &&
-        currentForm == "Body" ? <Body onFormSwitch = {toggleForm}/> : <Register onFormSwitch = {toggleForm}/>
+        currentForm === "Body" ? <Body onFormSwitch = {toggleForm}/> : <Register onFormSwitch = {toggleForm}/>
       }
       {
         <div className = "app">
       <span>
-      <input type = "text" id = "track" placeholder = "Search by Track Name" className = "search" name ="track"  onChange={(e)=>setMessage(e.target.value)}></input>
+      <input type = "text" id = "track" placeholder = "Search by Track Name" className = "search" name ="track"  onChange={handleChange} value = {track}></input>
       <button className = "trackBtn" id ="searchTrack" on> </button>
       <ol id = "inventory"></ol>
       </span>
