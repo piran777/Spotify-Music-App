@@ -82,15 +82,15 @@ const handleChange = e=>{
             
             const item = document.createElement('li');//need to add a list
             item.appendChild(document.createTextNode(`Track_ID: ${element.track_id}, Track_Title: ${element.track_title}`));     
-                l.appendChild(item)
-              // s
+                l.appendChild(item.toString())
+              // 
         })
        
     })
     )
     
     
-  },[])
+  },[track])
 
   
 
@@ -105,8 +105,8 @@ const handleChange = e=>{
       {
         <div className = "app">
       <span>
-      <input type = "text" id = "track" placeholder = "Search by Track Name" className = "search" name ="track"  onChange={(e)=>setMessage(e.target.value)}></input>
-      <button className = "trackBtn" id ="searchTrack" on> </button>
+      <input type = "text" id = "track" placeholder = "Search by Track Name" className = "search" name ="track" onChange={handleChange} value = {track} />
+      <button className = "trackBtn" id ="searchTrack" onClick={handleSubmit}>Search</button>
       <ol id = "inventory"></ol>
       </span>
       </div>
