@@ -110,13 +110,11 @@ const handleChange = e=>{
       {
         <div className = "app">
       <span>
-<<<<<<< HEAD
-      <input type = "text" id = "track" placeholder = "Search by Track Name" className = "search" name ="track"  onChange={handleChange} value = {track}></input>
-      <button className = "trackBtn" id = "searchTrack">Search</button>
-=======
+
+
       <input type = "text" id = "track" placeholder = "Search by Track Name" className = "search" name ="track" onChange={handleChange} value = {track} />
       <button className = "trackBtn" id ="searchTrack" onClick={handleSubmit}>Search</button>
->>>>>>> 0dc4c5151434ee4d6f7bb0ff665483e28f6c05e6
+
       <ol id = "inventory"></ol>
       </span>
       </div>
