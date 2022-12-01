@@ -1,17 +1,15 @@
 import React from 'react';
+
 const handleSubmit = (e) =>{
     e.preventDefault();
-  
   }
+
 function Body() {
     return (
         <form onSubmit = {handleSubmit}>
         <div>
             <div className = "admin">
-                <span>
-                    <input type = "text" id = "track" placeholder="Search by Track Name" className = "search" name = "track" />
-                    <button className = "trackBtn" id = "searchTrack">Search</button>
-                </span>
+                
                 <span>
                     <input type = "text" id = "artist" placeholder="Search by Artist Name" className = "search" name = "artist" />
                     <button type="submit" className = "artistBtn" id = "searchArtist">Search</button>
