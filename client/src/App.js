@@ -62,23 +62,25 @@ function App() {
     let list = document.getElementById('inventory')
     list.replaceChildren('')
     
-    fetch(`/api/track/trackTitle/${track}`)
-    .then(res => res.json()
-    .then(data => {
-        const l = document.getElementById('inventory');     
-        data.forEach(element =>{
-          fetch(`/api/tracks/${element}`)
-            .then(res => res.json()
-            .then(data => {
-              const item = document.createElement('li');//need to add a list
-              item.appendChild(document.createTextNode(`Track_ID: ${data.track_id}, Track_Title: ${data.track_title}`));     
-              l.appendChild(item);
-            })
-          )
-        })
-
-    })
-    )
+    if(track != '') {
+      fetch(`/api/track/trackTitle/${track}`)
+      .then(res => res.json()
+      .then(data => {
+          const l = document.getElementById('inventory');     
+          data.forEach(element =>{
+            fetch(`/api/tracks/${element}`)
+              .then(res => res.json()
+              .then(data => {
+                const item = document.createElement('li');//need to add a list
+                item.appendChild(document.createTextNode(`Track_ID: ${data.track_id}, Track_Title: ${data.track_title}`));     
+                l.appendChild(item);
+              })
+            )
+          })
+  
+      })
+      )
+    }
   },[track])
 
   
