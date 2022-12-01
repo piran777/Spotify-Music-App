@@ -10,7 +10,6 @@ import {Register} from './Register';
 import { createPortal } from 'react-dom';
 
 
-
 let chosenPlaylist = '';
 let chosenTracks = [];
 function App() {
@@ -55,15 +54,6 @@ function App() {
     
 }
 
-
-// const handleClick = e=>{
-//   // 👇️ update input value
-//    setMessage(e.target.value);
-
-//   // // 👇️ access input value
-//    console.log(e.target.value);
-// }
-
   const [backendData, setBackendData] = useState([{}])
 
   const getByTrackName = useEffect(() => {
@@ -86,11 +76,9 @@ function App() {
             })
           )
         })
-       
+
     })
     )
-    
-    
   },[track])
 
   
@@ -112,22 +100,9 @@ function App() {
       </span>
       </div>
 }
-      {/* onClick = {getByTrackName}
-       it works*/}
-     
-     
-    
       <Footer />
     </div>
   );
 }
 
 export default App;
-{/* <Body />
-{(typeof backendData.title === 'undefined') ?(
- <p>loading</p>
-):(
- backendData.title.map((user,i)=>(
-   <p key = {i}>{user}</p>
- ))
-)}  */}
