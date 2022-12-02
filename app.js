@@ -199,10 +199,14 @@ app.get('/api/track/trackTitle/:track_title', (req, res) => {
 app.get('/api/artists/artist/:artist_name', (req, res) => {
     const name = String.prototype.toLowerCase.call(req.params.artist_name);
     let nameArray = [];
+    let max = 0;
 
     artistDataFinal.forEach(artist => {
         if((String.prototype.toLowerCase.call(artist.artist_name)).includes(name)){
-            nameArray.push(artist.artist_id);
+            if(max < 8) {
+               nameArray.push(artist.artist_id);
+               max++; 
+            }
         }
     })
     

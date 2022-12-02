@@ -11,7 +11,7 @@ function Body() {
                 {/* <span>
                     <input type = "text" id = "track" placeholder="Search by Track Name" className = "search" name = "track" />
                     <button className = "trackBtn" id = "searchTrack">Search</button>
-                </span> */}
+                </span> 
                 <span>
                     <input type = "text" id = "artist" placeholder="Search by Artist Name" className = "search" name = "artist" />
                     <button type="submit" className = "artistBtn" id = "searchArtist">Search</button>
@@ -19,7 +19,7 @@ function Body() {
                 <span>
                     <input type = "text" id = "album" placeholder="Search by Album Name" className = "search" name = "album" />
                     <button type="submit" className = "albumBtn" id = "searchAlbum">Search</button>
-                </span>
+                </span>*/}
             </div>
             
 

@@ -68,7 +68,6 @@ input[type="search"]::placeholder {
     padding-left: 15px;
     padding-right: 25px;
     font-family: Montserrat;
-
 }
 .heading_num2 {
     padding-top: 2px;
@@ -144,9 +143,6 @@ input[type="search"]::placeholder {
     background-color: rgb(175, 174, 174);
 }
 .data:hover {
-    background-color: rgb(175, 174, 174);
-}
-#heading:hover{
     background-color: rgb(175, 174, 174);
 }
 .trackBtn{
@@ -260,3 +256,73 @@ button{
     text-decoration: underline;
 }
 
+.heading_artistid {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 15px;
+    padding-right: 25px;
+    width: 150px;
+    font-family: Montserrat;
+}
+.heading_artistid2 {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 75px;
+    padding-right: 15px;
+    width: 150px;
+    font-family: Montserrat;
+}
+.heading_artistimg {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 60px;
+    font-family: Montserrat;
+}
+.heading_artistfav {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 300px;
+    font-family: Montserrat;
+}
+.heading_artistfav2 {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 100px;
+    width: 175px;
+    font-family: Montserrat;
+}
+.heading_artistname {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 400px;
+    font-family: Montserrat;
+}
+.heading_artistname2 {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 80px;
+    padding-right: 50px;
+    width: 400px;
+    font-family: Montserrat;
+}
+.heading_artisthandle {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 400px;
+    font-family: Montserrat;
+}
+.heading_artisthandle2 {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 70px;
+    padding-right: 50px;
+    max-width: 160px;
+    word-wrap: break-word;
+    font-family: Montserrat;
+}
+.heading_artistadd {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 25px;
+    font-family: Montserrat;
+}
