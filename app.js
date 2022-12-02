@@ -127,6 +127,13 @@ app.get('/createtable', (req, res) => {
         res.send('Table Created');
     })
 })
+app.get('/createtableLogin', (req, res) => {
+    let sql = 'CREATE TABLE logininfo(name VARCHAR(100) NOT NULL, email VARCHAR(100) NOT NULL, password VARCHAR(100) NOT NULL, AccessToken VARCHAR(400), RefreshToken VARCHAR(400), id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
+    db.query(sql, err => {
+        if (err) throw err;
+        res.send('Table Created');
+    })
+})
 
 //Gets genres
 app.get('/api/genres', (req, res) => {
@@ -203,14 +210,10 @@ app.get('/api/track/trackTitle/:track_title', (req, res) => {
 app.get('/api/artists/artist/:artist_name', (req, res) => {
     const name = String.prototype.toLowerCase.call(req.params.artist_name);
     let nameArray = [];
-    let max = 0;
 
     artistDataFinal.forEach(artist => {
         if((String.prototype.toLowerCase.call(artist.artist_name)).includes(name)){
-            if(max < 8) {
-               nameArray.push(artist.artist_id);
-               max++; 
-            }
+            nameArray.push(artist.artist_id);
         }
     })
     
@@ -234,42 +237,82 @@ router.put('/open/:name', (req, res) => {
     res.send("Open playlist");
 });
 
-const users = [];
 
-router.post('/secure/', async (req,res) =>{
-    try{
-        const salt = await bcrypt.genSalt()
-        const hashedPass = await bcrypt.hash(req.body.password,salt)
-        console.log(salt)
-        console.log(hashedPass)
+
+// router.post('/secure/', async (req,res) =>{
+//     try{
+//         const salt = await bcrypt.genSalt()
+//         const hashedPass = await bcrypt.hash(req.body.password,salt)
+//         console.log(salt)
+//         console.log(hashedPass)
         
-    const user ={name: req.body.name, password: hashedPass}
-    users.push(user)
-    res.status(201).send("User is valid")
+//     const user ={name: req.body.name, email: req.body.email, password: hashedPass}
+//     users.push(user)
+
+//     let sql = `
+//     INSERT INTO logininfo(
+//         name,
+//         email,
+//         password
+//     )
+//     VALUES(
+//         '${req.body.name}',
+//         '${req.body.email}',
+//         '${hashedPass}'
+//     )`;db.query(sql, err => {
+//         if (err) throw err;
+//     })
+//      res.status(201).send("User is valid")
     
-    }catch{
-        res.status(500).send("There was an error")
-    }
+//     }catch{
+//         res.status(500).send("There was an error")
+//     }
+    
     
 
+// });
 
-});
 router.get('/secure/', authenticateToken, (req,res) =>{
-    res.json(users.filter((user=> user.username === req.user.name)));
+    res.json(users.filter(user=> user.username === req.user.name));
 }); //for testing if it works
 
 router.post('/secure/login', async (req,res) => {
     //Authenticate User
-    const user = users.find(user => user.name === req.body.name)
-    const acessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
-  
+  //  const user = users.find(user => user.name === req.body.name)
+  const salt = await bcrypt.genSalt()
+  const hashedPass = await bcrypt.hash(req.body.password, salt)
+  console.log(salt)
+  console.log(hashedPass)
+  const user = `SELECT * FROM logininfo WHERE name = "${req.body.name}" && email = "${req.body.email}" && password = "${hashedPass}"` ;
+  db.query(user, err => {
+      if (err) throw err;
+  }); 
+    const acessToken = generateAccessToken(user)
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
+   
     if(user == null){
         return res.status(400).send("Cannot find the user")
     } 
     try{
-        if (await bcrypt.compare(req.body.password, user.password)){
-            
-            res.send({acessToken: acessToken})
+        if (await bcrypt.compare(req.body.password, hashedPass)){  
+            let sql = ` INSERT INTO logininfo(
+                        name,
+                        email,
+                        password,
+                        AccessToken,
+                        RefreshToken
+                        )
+                        VALUES(
+                        '${req.body.name}',
+                        '${req.body.email}',
+                        '${hashedPass}',
+                        '${acessToken}',
+                        '${refreshToken}'
+                        )`;db.query(sql, err => {
+                        if (err) throw err;
+                        })
+                       
+            res.send({acessToken: acessToken, refreshToken: refreshToken})
         
         } else{
             res.send('Unsuccesful Login')
@@ -279,8 +322,18 @@ router.post('/secure/login', async (req,res) => {
         res.status(500).send("There was an error")
     }
 
-
 });
+
+    router.post('/token',(req, res) =>{
+        const refreshToken = req.body.token
+        if(refreshToken == null)return res.sendStatus(401)
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err,user) =>{
+            if(err)return res.sendStatus(403)
+            const accessToken = generateAccessToken( {name: user.name})
+            res.json({accessToken: accessToken})
+        })
+    });
+
 
 
 function authenticateToken(req, res, next){
@@ -294,6 +347,10 @@ function authenticateToken(req, res, next){
         req.user = user
         next()
     })
+}
+
+function generateAccessToken(user){
+    return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
 }
 
 
