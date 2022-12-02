@@ -9,18 +9,18 @@ import {Login} from './Login';
 import {Register} from './Register';
 import { createPortal } from 'react-dom';
 
-
-let chosenPlaylist = '';
 let chosenTracks = [];
+let chosenPlaylist = '';
+
 function App() {
-  const ref = useRef();
   const params = useParams();
   const[currentForm,setCurrentForm] = useState('Login')
   //console.log(params)
 
-  const [track,setMessageTrack] = useState('')
-  const [artist,setMessageArtist] = useState('')
-  const [album,setMessageAlbum] = useState('')
+  const [track,setMessageTrack] = useState('');
+  const [artist,setMessageArtist] = useState('');
+  const [album,setMessageAlbum] = useState('');
+  const listNameRef = useRef(null);
   
 
   const handleChangeTrack = e=>{
@@ -43,26 +43,134 @@ function App() {
     e.preventDefault();
   }
 
-  const addToPlaylist = (track)=> {
-    let currentPlaylist = '';
+  useEffect(() => {
+    showAllPlaylists();
+  }, [currentForm === "Body" || listNameRef])
+
+
+
+  //Shows list of all playlists
+  function showAllPlaylists() {
+    if(currentForm === "Body") {
+      const t = document.getElementById('allPlaylists');
+      t.replaceChildren('');
+    
+      fetch('/api/playlist')
+        .then(res => res.json()
+        .then(data => {
+          data.forEach(e => {
+            const row = document.createElement('tr');
+            const item = document.createElement('th');
+
+            item.classList = "playlistCenter";
+
+            item.addEventListener("click", function(){
+              chosenPlaylist = (item.innerText.substring(0, item.innerText.indexOf(' •')));
+              getPlaylistData(chosenPlaylist);
+            });
+
+            item.appendChild(document.createTextNode(`${e.name} • ${e.counter} songs, ${e.timer} duration`));
+            row.appendChild(item);
+            t.appendChild(row);
+          })
+        })
+        )
+    }
+  }
+
+  //Gets all tracks and their info from given playlist
+  function getPlaylistData(playlist) {
+    const list = document.getElementById('currentList');
+    list.replaceChildren('');
+
+    const h = document.createElement('h1');
+
+    h.appendChild(document.createTextNode(`Current Playlist: ${chosenPlaylist}`));
+    list.appendChild(h);
+
+    fetch(`/api/playlist/tracks/${playlist}`)
+      .then(res => res.json() 
+      .then(data => {
+        let temp = [];
+        data.forEach(e => {
+            temp.push(e.track_id)
+        })
+        populateTable(temp);
+      })
+      )
+  }
+
+  //Adds a new playlist
+  function addNewPlaylist() {
+    const newList = listNameRef.current.value;
+
+    fetch(`/api/playlist/secure/${newList}`, {
+      method: 'PUT'
+    })
+      .then(res => {
+        res.json()
+        .then(data => console.log(data))
+        .catch(console.log('Failed to get json object'))
+      })
+      .catch()
+  }
+  
+  //Update tracks in a playlist
+  function updatePlaylist() {
+    fetch(`/api/playlist/${chosenPlaylist}`, {
+        method: 'POST',
+        headers: {'Content-type': 'application/json'},
+        body: JSON.stringify(chosenTracks)
+    })
+      .then(res => {
+        if(res.ok)
+        res.json()
+          .then(data => console.log(data))
+          .catch(console.log('Failed to get json objects'))
+      })
+      .catch()
+
+      const t = document.getElementById('addTracks');
+      t.replaceChildren('');
+
+      chosenTracks = [];
+  }
+
+  //Deletes a chosen playlist
+  function deletePlaylist() {
+    fetch(`/api/playlist/${chosenPlaylist}`, {
+      method: 'DELETE'
+    })
+      .then(res => {
+        res.json()
+          .then(data => console.log(data))
+          .catch(console.log('Failed to get json object'))
+      })
+      .catch()
+    }
+
+  //Adds track ids to an array
+  function addToPlaylist(track) {
+    let alreadyAdded = false;
+
     const t = document.getElementById('addTracks');
     const row = document.createElement('tr');
     const item = document.createElement('th');
 
-    if(currentPlaylist !== chosenPlaylist) {
-        chosenTracks = [];
-        currentPlaylist = chosenPlaylist;
-    }
+    chosenTracks.forEach(e => {
+      if (track == e){
+        alreadyAdded = true;
+      }
+    })
 
-    item.appendChild(document.createTextNode(`Track_id is: ${track}`));
-    row.appendChild(item);
-    t.appendChild(row);
-
-    chosenTracks.push(track);
-    
-}
-
-  const [backendData, setBackendData] = useState([{}])
+    if(alreadyAdded == false) {
+      item.appendChild(document.createTextNode(`Track_id is: ${track}`));
+      row.appendChild(item);
+      t.appendChild(row);
+  
+      chosenTracks.push(track);
+    } 
+  }
 
   const getByTrackName = useEffect(() => {
     if(track !== '') {
@@ -194,38 +302,50 @@ function App() {
   function populateTable(data) {
     let list = document.getElementById('playlistTracks')
     list.replaceChildren('')
-    const l = document.getElementById('playlistTracks');     
+
+    const l = document.getElementById('playlistTracks');  
+
     data.forEach(element =>{
       fetch(`/api/tracks/${element}`)
         .then(res => res.json()
         .then(data => {
+
           const row = document.createElement('tbody');
           const tr = document.createElement('tr');
           tr.classList = "data";
+
           const itemHeading = document.createElement('td');
           const itemImage = document.createElement('td');
           const itemTitle = document.createElement('td');
           const itemAlbum = document.createElement('td');
           const itemDuration = document.createElement('td');
           const itemAdd = document.createElement('td');
+
           itemHeading.className = "heading_num2";
-          itemHeading.appendChild(document.createTextNode(`${data.track_id}`));     
           itemImage.className = "heading_image2";
-          itemImage.appendChild(document.createTextNode('')); 
           itemTitle.className = "heading_title2";
-          itemTitle.appendChild(document.createTextNode(`${data.track_title}`)); 
           itemAlbum.className = "heading_album2";
-          itemAlbum.appendChild(document.createTextNode(`${data.album_title}`)); 
           itemDuration.className = "heading_duration2";
-          itemDuration.appendChild(document.createTextNode(`${data.track_duration}`)); 
           itemAdd.className = "heading_add";
+
+          itemAdd.addEventListener("click", function() {
+            addToPlaylist(data.track_id);
+          })
+
+          itemHeading.appendChild(document.createTextNode(`${data.track_id}`));
+          itemImage.appendChild(document.createTextNode('')); 
+          itemTitle.appendChild(document.createTextNode(`${data.track_title}`)); 
+          itemAlbum.appendChild(document.createTextNode(`${data.album_title}`)); 
+          itemDuration.appendChild(document.createTextNode(`${data.track_duration}`)); 
           itemAdd.appendChild(document.createTextNode('+')); 
+
           tr.appendChild(itemHeading);
           tr.appendChild(itemImage);
           tr.appendChild(itemTitle);
           tr.appendChild(itemAlbum);
           tr.appendChild(itemDuration);
           tr.appendChild(itemAdd);
+          
           row.appendChild(tr);
           l.appendChild(row);
         })
@@ -234,43 +354,52 @@ function App() {
   }
 
   function populateTableArtist(data) {
+
     let list = document.getElementById('playlistTracks')
     list.replaceChildren('')
-    let count = 0;
-    const l = document.getElementById('playlistTracks');     
+
+    const l = document.getElementById('playlistTracks');  
+       
     data.forEach(element =>{
-      count += 1;
       fetch(`/api/artists/${element}`)
         .then(res => res.json()
         .then(data => {
+
           const row = document.createElement('tbody');
           const tr = document.createElement('tr');
+
           tr.classList = "data";
+
           const itemID = document.createElement('td');
           const itemIMG = document.createElement('td');
           const itemFav = document.createElement('td');
           const itemName = document.createElement('td');
           const itemHandle = document.createElement('td');
           const itemAdd = document.createElement('td');
+
           itemID.className = "heading_artistid2";
-          itemID.appendChild(document.createTextNode(`${data.artist_id}`));     
           itemIMG.className = "heading_artistimg";
-          itemIMG.appendChild(document.createTextNode('')); 
           itemFav.className = "heading_artistfav2";
-          itemFav.appendChild(document.createTextNode(`${data.artist_favorites}`)); 
           itemName.className = "heading_artistname2";
-          itemName.appendChild(document.createTextNode(`${data.artist_name}`)); 
           itemHandle.className = "heading_artisthandle2";
-          itemHandle.appendChild(document.createTextNode(`${data.artist_handle}`)); 
           itemAdd.className = "heading_artistadd";
+
+          itemID.appendChild(document.createTextNode(`${data.artist_id}`));     
+          itemIMG.appendChild(document.createTextNode('')); 
+          itemFav.appendChild(document.createTextNode(`${data.artist_favorites}`)); 
+          itemName.appendChild(document.createTextNode(`${data.artist_name}`)); 
+          itemHandle.appendChild(document.createTextNode(`${data.artist_handle}`)); 
           itemAdd.appendChild(document.createTextNode('')); 
+
           tr.appendChild(itemID);
           tr.appendChild(itemIMG);
           tr.appendChild(itemFav);
           tr.appendChild(itemName);
           tr.appendChild(itemHandle);
           tr.appendChild(itemAdd);
+
           row.appendChild(tr);
+
           l.appendChild(row);
         })
       )
@@ -302,6 +431,22 @@ function App() {
                   <input type = "text" id = "album" placeholder="Search by Album Name" className = "search" name = "album" onChange={handleChangeAlbum} value = {album} onBlur = {() => this.inputField.value = ""} />
                   <button type="submit" className = "albumBtn" id = "searchAlbum" onClick={handleSubmit}>Search</button>
               </span>
+
+              <button type="submit" className = "refreshPlaylists" id = "refreshPlaylists" onClick = {showAllPlaylists}>Refresh Playlists</button>
+
+              <div>
+                  <span>
+                      <input type = "text" id = "newplaylist" placeholder="New playlist name" className = "search" name = "newplaylist" ref = {listNameRef}/>
+                      <button type="submit" className = "playlistBtn" id = "addPlaylist" onClick = {addNewPlaylist}>Add</button>
+                  </span>
+              </div>
+
+              <button type="submit" className = "addToPlaylist" id = "addToPlaylist" onClick = {updatePlaylist}>Add to Playlist</button>
+              <button type="submit" className = "deletePlaylist" id = "deletePlaylist" onClick = {deletePlaylist}>Delete Playlist</button>
+
+              <div id = 'currentList'><h1>Current Playlist: </h1>
+              </div>
+
             </div>
         
       }
