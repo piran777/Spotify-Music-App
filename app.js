@@ -227,7 +227,40 @@ router.put('/admin/:name', (req, res) => {
 });
 
 router.put('/secure/:name', (req, res) => {
-    res.send("Secure playlist");
+    const newPlaylist = String.prototype.toLowerCase.call(req.params.name);
+    console.log("Playlist:", newPlaylist);
+
+    let identical = false;
+    for(let i = 0; i < playlists.length; i++) {
+        //Check if playlist exists
+        if(String.prototype.toLowerCase.call(playlists[i].playlistname) === newPlaylist) {
+            identical = true;
+        }
+    } 
+
+    if(identical == false) {
+        console.log('Creating new playlist');
+        let sql = 'CREATE TABLE ' + newPlaylist + '(track_id VARCHAR(100) NOT NULL, track_duration VARCHAR(50) NOT NULL, id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
+        db.query(sql, err => {
+            if (err) throw err;
+            addPlaylist(req.params.name);
+        })
+        
+        let sqlUpdate = 'SELECT * FROM playlistnames';
+        query = db.query(sqlUpdate, (err, results) => {
+            if(err) throw err;
+            let newListToAdd = {
+                playlistname: newPlaylist,
+                id: playlists[playlists.length - 1].id + 1
+            }
+            playlists.push(newListToAdd);
+            res.send(newPlaylist + ' playlist created')
+        })
+        
+    } else if(identical == true) {
+        console.log('Playlist already exists');
+        res.sendStatus(400);
+    }
 });
 
 router.put('/open/:name', (req, res) => {

@@ -10,17 +10,19 @@ import {Register} from './Register';
 import { createPortal } from 'react-dom';
 
 
-let chosenPlaylist = '';
+
 let chosenTracks = [];
+
 function App() {
-  const ref = useRef();
+  let chosenPlaylist = '';
   const params = useParams();
   const[currentForm,setCurrentForm] = useState('Login')
   //console.log(params)
 
-  const [track,setMessageTrack] = useState('')
-  const [artist,setMessageArtist] = useState('')
-  const [album,setMessageAlbum] = useState('')
+  const [track,setMessageTrack] = useState('');
+  const [artist,setMessageArtist] = useState('');
+  const [album,setMessageAlbum] = useState('');
+  const listNameRef = useRef(null);
   
 
   const handleChangeTrack = e=>{
@@ -43,9 +45,14 @@ function App() {
     e.preventDefault();
   }
 
-  
   useEffect(() => {
-    console.log("Hello")
+    showAllPlaylists();
+  }, [currentForm === "Body" || listNameRef])
+
+
+
+  //Shows list of all playlists
+  function showAllPlaylists() {
     if(currentForm === "Body") {
       const t = document.getElementById('allPlaylists');
       t.replaceChildren('');
@@ -71,9 +78,16 @@ function App() {
         })
         )
     }
-  }, [currentForm === "Body"])
+  }
 
+  //Gets all tracks and their info from given playlist
   function getPlaylistData(playlist) {
+    const list = document.getElementById('currentList');
+    list.replaceChildren('');
+    const h = document.createElement('h1');
+    h.appendChild(document.createTextNode(`Current Playlist: ${chosenPlaylist}`));
+    list.appendChild(h);
+
     fetch(`/api/playlist/tracks/${playlist}`)
       .then(res => res.json() 
       .then(data => {
@@ -86,7 +100,20 @@ function App() {
       )
   }
 
+  //Adds a new playlist
+  function addNewPlaylist() {
+    const newList = listNameRef.current.value;
 
+    fetch(`/api/playlist/secure/${newList}`, {
+      method: 'PUT'
+    })
+      .then(res => {
+        res.json()
+        .then(data => console.log(data))
+        .catch(console.log('Failed to get json object'))
+      })
+      .catch()
+  }
   
 
   const getByTrackName = useEffect(() => {
@@ -344,6 +371,22 @@ function App() {
                   <input type = "text" id = "album" placeholder="Search by Album Name" className = "search" name = "album" onChange={handleChangeAlbum} value = {album} onBlur = {() => this.inputField.value = ""} />
                   <button type="submit" className = "albumBtn" id = "searchAlbum" onClick={handleSubmit}>Search</button>
               </span>
+
+              <button type="submit" className = "refreshPlaylists" id = "refreshPlaylists" onClick = {showAllPlaylists}>Refresh Playlists</button>
+
+              <div>
+                  <span>
+                      <input type = "text" id = "newplaylist" placeholder="New playlist name" className = "search" name = "newplaylist" ref = {listNameRef}/>
+                      <button type="submit" className = "playlistBtn" id = "addPlaylist" onClick = {addNewPlaylist}>Add</button>
+                  </span>
+              </div>
+
+              <button type="submit" className = "addToPlaylist" id = "addToPlaylist">Add to Playlist</button>
+              <button type="submit" className = "deletePlaylist" id = "deletePlaylist">Delete Playlist</button>
+
+              <div id = 'currentList'><h1>Current Playlist: </h1>
+              </div>
+
             </div>
         
       }

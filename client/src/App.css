@@ -248,9 +248,10 @@ button{
     border-radius: 10px;
     cursor: pointer;
 }
-
+button:hover {
+    background-color: #8b8b8b;
+}
 .linkBtn{
-    
     background: none;
     color:black;
     text-decoration: underline;
@@ -332,4 +333,18 @@ button{
     position: sticky;
     top: 0;
     z-index: 1
+}
+#currentList {
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 25px;
+    padding: 20px;
+    position:absolute; left:72px; top:525px;
+    width: 350px;
+    height: 19px;
+}
+h1 {
+    padding-bottom: 10px;
+    position:absolute; left:10px; top:4px;
+    font-size: 20px;
 }
