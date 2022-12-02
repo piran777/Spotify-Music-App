@@ -43,26 +43,51 @@ function App() {
     e.preventDefault();
   }
 
-  const addToPlaylist = (track)=> {
-    let currentPlaylist = '';
-    const t = document.getElementById('addTracks');
-    const row = document.createElement('tr');
-    const item = document.createElement('th');
-
-    if(currentPlaylist !== chosenPlaylist) {
-        chosenTracks = [];
-        currentPlaylist = chosenPlaylist;
-    }
-
-    item.appendChild(document.createTextNode(`Track_id is: ${track}`));
-    row.appendChild(item);
-    t.appendChild(row);
-
-    chosenTracks.push(track);
+  
+  useEffect(() => {
+    console.log("Hello")
+    if(currentForm === "Body") {
+      const t = document.getElementById('allPlaylists');
+      t.replaceChildren('');
     
-}
+      fetch('/api/playlist')
+        .then(res => res.json()
+        .then(data => {
+          data.forEach(e => {
+            const row = document.createElement('tr');
+            const item = document.createElement('th');
 
-  const [backendData, setBackendData] = useState([{}])
+            item.classList = "playlistCenter";
+
+            item.addEventListener("click", function(){
+              chosenPlaylist = (item.innerText.substring(0, item.innerText.indexOf(' •')));
+              getPlaylistData(chosenPlaylist);
+            });
+
+            item.appendChild(document.createTextNode(`${e.name} • ${e.counter} songs, ${e.timer} duration`));
+            row.appendChild(item);
+            t.appendChild(row);
+          })
+        })
+        )
+    }
+  }, [currentForm === "Body"])
+
+  function getPlaylistData(playlist) {
+    fetch(`/api/playlist/tracks/${playlist}`)
+      .then(res => res.json() 
+      .then(data => {
+        let temp = [];
+        data.forEach(e => {
+            temp.push(e.track_id)
+        })
+        populateTable(temp);
+      })
+      )
+  }
+
+
+  
 
   const getByTrackName = useEffect(() => {
     if(track !== '') {
@@ -194,38 +219,46 @@ function App() {
   function populateTable(data) {
     let list = document.getElementById('playlistTracks')
     list.replaceChildren('')
-    const l = document.getElementById('playlistTracks');     
+
+    const l = document.getElementById('playlistTracks');  
+
     data.forEach(element =>{
       fetch(`/api/tracks/${element}`)
         .then(res => res.json()
         .then(data => {
+
           const row = document.createElement('tbody');
           const tr = document.createElement('tr');
           tr.classList = "data";
+
           const itemHeading = document.createElement('td');
           const itemImage = document.createElement('td');
           const itemTitle = document.createElement('td');
           const itemAlbum = document.createElement('td');
           const itemDuration = document.createElement('td');
           const itemAdd = document.createElement('td');
+
           itemHeading.className = "heading_num2";
-          itemHeading.appendChild(document.createTextNode(`${data.track_id}`));     
           itemImage.className = "heading_image2";
-          itemImage.appendChild(document.createTextNode('')); 
           itemTitle.className = "heading_title2";
-          itemTitle.appendChild(document.createTextNode(`${data.track_title}`)); 
           itemAlbum.className = "heading_album2";
-          itemAlbum.appendChild(document.createTextNode(`${data.album_title}`)); 
           itemDuration.className = "heading_duration2";
-          itemDuration.appendChild(document.createTextNode(`${data.track_duration}`)); 
           itemAdd.className = "heading_add";
+
+          itemHeading.appendChild(document.createTextNode(`${data.track_id}`));
+          itemImage.appendChild(document.createTextNode('')); 
+          itemTitle.appendChild(document.createTextNode(`${data.track_title}`)); 
+          itemAlbum.appendChild(document.createTextNode(`${data.album_title}`)); 
+          itemDuration.appendChild(document.createTextNode(`${data.track_duration}`)); 
           itemAdd.appendChild(document.createTextNode('+')); 
+
           tr.appendChild(itemHeading);
           tr.appendChild(itemImage);
           tr.appendChild(itemTitle);
           tr.appendChild(itemAlbum);
           tr.appendChild(itemDuration);
           tr.appendChild(itemAdd);
+          
           row.appendChild(tr);
           l.appendChild(row);
         })
@@ -234,43 +267,52 @@ function App() {
   }
 
   function populateTableArtist(data) {
+
     let list = document.getElementById('playlistTracks')
     list.replaceChildren('')
-    let count = 0;
-    const l = document.getElementById('playlistTracks');     
+
+    const l = document.getElementById('playlistTracks');  
+       
     data.forEach(element =>{
-      count += 1;
       fetch(`/api/artists/${element}`)
         .then(res => res.json()
         .then(data => {
+
           const row = document.createElement('tbody');
           const tr = document.createElement('tr');
+
           tr.classList = "data";
+
           const itemID = document.createElement('td');
           const itemIMG = document.createElement('td');
           const itemFav = document.createElement('td');
           const itemName = document.createElement('td');
           const itemHandle = document.createElement('td');
           const itemAdd = document.createElement('td');
+
           itemID.className = "heading_artistid2";
-          itemID.appendChild(document.createTextNode(`${data.artist_id}`));     
           itemIMG.className = "heading_artistimg";
-          itemIMG.appendChild(document.createTextNode('')); 
           itemFav.className = "heading_artistfav2";
-          itemFav.appendChild(document.createTextNode(`${data.artist_favorites}`)); 
           itemName.className = "heading_artistname2";
-          itemName.appendChild(document.createTextNode(`${data.artist_name}`)); 
           itemHandle.className = "heading_artisthandle2";
-          itemHandle.appendChild(document.createTextNode(`${data.artist_handle}`)); 
           itemAdd.className = "heading_artistadd";
+
+          itemID.appendChild(document.createTextNode(`${data.artist_id}`));     
+          itemIMG.appendChild(document.createTextNode('')); 
+          itemFav.appendChild(document.createTextNode(`${data.artist_favorites}`)); 
+          itemName.appendChild(document.createTextNode(`${data.artist_name}`)); 
+          itemHandle.appendChild(document.createTextNode(`${data.artist_handle}`)); 
           itemAdd.appendChild(document.createTextNode('')); 
+
           tr.appendChild(itemID);
           tr.appendChild(itemIMG);
           tr.appendChild(itemFav);
           tr.appendChild(itemName);
           tr.appendChild(itemHandle);
           tr.appendChild(itemAdd);
+
           row.appendChild(tr);
+
           l.appendChild(row);
         })
       )

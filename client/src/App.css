@@ -326,3 +326,10 @@ button{
     width: 25px;
     font-family: Montserrat;
 }
+#playlistHeadings {
+    position: -webkit-sticky;
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1
+}

@@ -297,6 +297,95 @@ function authenticateToken(req, res, next){
 }
 
 
+//Get ID's of all tracks in playlist
+router.get('/tracks/:name', (req, res) => {
+    const getPlaylistTracks = String.prototype.toLowerCase.call(req.params.name);
+    console.log("Playlist:", getPlaylistTracks);
+
+    let identical = false;
+    for(let i = 0; i < playlists.length; i++) {
+        //Check if playlist exists
+        if(String.prototype.toLowerCase.call(playlists[i].playlistname) == getPlaylistTracks) {
+            identical = true;
+        }
+    } 
+
+    if(identical == false) {
+        console.log('Playlist not found');
+        res.sendStatus(404);
+    } else if(identical == true) {
+        let sql = 'SELECT * FROM ' + req.params.name;
+        let query = db.query(sql, (err, results) => {
+            if(err) throw err;
+            res.send(results);
+        })
+    }   
+})
+
+//Get all playlists with # of tracks and total play time
+router.get('', (req, res) => {
+    let finalArray = [];
+    let tempArray = {
+        name: '',
+        counter: '',
+        timer: ''
+    };
+    let timer = 0;
+    let go = 0;
+
+    for(let i = 0; i < playlists.length; i++){
+        let trackStorage;
+
+        let listName = playlists[i].playlistname;
+
+        let sqlCount = 'SELECT COUNT(*) AS track_amount FROM ' + listName;
+        let sqlTracks = 'SELECT track_duration FROM ' + listName;
+
+        let query = db.query(sqlCount, (err, results) => {
+            if(err) throw err;
+            tempArray.counter = results[0].track_amount;
+        })
+        query = db.query(sqlTracks, (err, results) => {
+            if(err) throw err;
+            if(timer != 0) {
+                timer = 0;
+            }
+            trackStorage = results;
+
+            for(let j = 0; j < trackStorage.length; j++) {
+                timer += hmsToSecondsOnly(trackStorage[j].track_duration);
+            } 
+                        
+            finalArray.push({
+                name: listName,
+                counter: tempArray.counter,
+                timer: timeFormat(timer)
+            })
+            go += 1;
+            
+            if(go == playlists.length) {
+                res.send(finalArray);
+            }
+        })
+    }
+})
+
+
+
+
+//Convert to seconds
+function hmsToSecondsOnly(str) {
+    var p = str.split(':'),
+        s = 0, m = 1;
+
+    while (p.length > 0) {
+        s += m * parseInt(p.pop(), 10);
+        m *= 60;
+    }
+
+    return s;
+}
+
 //Convert to full time format
 function timeFormat(duration)
 {   
