@@ -330,6 +330,37 @@ function authenticateToken(req, res, next){
 }
 
 
+//Add tracks to playlist
+router.post('/:name', (req, res) => {
+    const newtracks = req.body;
+    console.log("Tracks: ", newtracks);
+
+    let sqlDelete = 'TRUNCATE TABLE ' + req.params.name;
+    db.query(sqlDelete, err => {
+        if (err) throw err;
+    })
+
+    newtracks.forEach(t => {
+        const track = trackDataFinal.find(p => p.track_id === t);
+        let sql = `
+            INSERT INTO ` + req.params.name + `(
+                track_id,
+                track_duration
+            )
+            VALUES(
+                '${t}',
+                '${track.track_duration}'
+            )`;
+        db.query(sql, err => {
+            if (err) throw err;
+                
+        })
+    }) 
+    
+    res.send('Tracks added')
+})
+
+
 //Get ID's of all tracks in playlist
 router.get('/tracks/:name', (req, res) => {
     const getPlaylistTracks = String.prototype.toLowerCase.call(req.params.name);

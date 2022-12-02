@@ -9,12 +9,10 @@ import {Login} from './Login';
 import {Register} from './Register';
 import { createPortal } from 'react-dom';
 
-
-
 let chosenTracks = [];
+let chosenPlaylist = '';
 
 function App() {
-  let chosenPlaylist = '';
   const params = useParams();
   const[currentForm,setCurrentForm] = useState('Login')
   //console.log(params)
@@ -84,7 +82,9 @@ function App() {
   function getPlaylistData(playlist) {
     const list = document.getElementById('currentList');
     list.replaceChildren('');
+
     const h = document.createElement('h1');
+
     h.appendChild(document.createTextNode(`Current Playlist: ${chosenPlaylist}`));
     list.appendChild(h);
 
@@ -115,6 +115,50 @@ function App() {
       .catch()
   }
   
+  //Update tracks in a playlist
+  function updatePlaylist() {
+    fetch(`/api/playlist/${chosenPlaylist}`, {
+        method: 'POST',
+        headers: {'Content-type': 'application/json'},
+        body: JSON.stringify(chosenTracks)
+    })
+      .then(res => {
+        if(res.ok)
+        res.json()
+          .then(data => console.log(data))
+          .catch(console.log('Failed to get json objects'))
+      })
+      .catch()
+
+      const t = document.getElementById('addTracks');
+      t.replaceChildren('');
+
+      chosenTracks = [];
+  }
+
+  //Adds track ids to an array
+  function addToPlaylist(track) {
+    let alreadyAdded = false;
+
+    const t = document.getElementById('addTracks');
+    const row = document.createElement('tr');
+    const item = document.createElement('th');
+
+    chosenTracks.forEach(e => {
+      if (track == e){
+        alreadyAdded = true;
+      }
+    })
+
+    if(alreadyAdded == false) {
+      item.appendChild(document.createTextNode(`Track_id is: ${track}`));
+      row.appendChild(item);
+      t.appendChild(row);
+  
+      chosenTracks.push(track);
+      console.log(JSON.stringify(chosenTracks))
+    } 
+  }
 
   const getByTrackName = useEffect(() => {
     if(track !== '') {
@@ -272,6 +316,10 @@ function App() {
           itemDuration.className = "heading_duration2";
           itemAdd.className = "heading_add";
 
+          itemAdd.addEventListener("click", function() {
+            addToPlaylist(data.track_id);
+          })
+
           itemHeading.appendChild(document.createTextNode(`${data.track_id}`));
           itemImage.appendChild(document.createTextNode('')); 
           itemTitle.appendChild(document.createTextNode(`${data.track_title}`)); 
@@ -381,7 +429,7 @@ function App() {
                   </span>
               </div>
 
-              <button type="submit" className = "addToPlaylist" id = "addToPlaylist">Add to Playlist</button>
+              <button type="submit" className = "addToPlaylist" id = "addToPlaylist" onClick = {updatePlaylist}>Add to Playlist</button>
               <button type="submit" className = "deletePlaylist" id = "deletePlaylist">Delete Playlist</button>
 
               <div id = 'currentList'><h1>Current Playlist: </h1>
