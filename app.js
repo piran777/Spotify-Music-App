@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const sanitizeHtml = require('sanitize-html');
@@ -6,13 +7,16 @@ const port = 3000;
 const router = express.Router();
 const fs = require('fs');
 const csv = require('csv-parser');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 
 //Creates Connection
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'martin123',
-    database: 'playlistdata'
+    password: 'Lenovo710?',
+    database: 'testing'
 });
 
 //Connect to MySQL
@@ -225,6 +229,69 @@ router.put('/secure/:name', (req, res) => {
 router.put('/open/:name', (req, res) => {
     res.send("Open playlist");
 });
+
+const users = [];
+
+router.post('/secure/', async (req,res) =>{
+    try{
+        const salt = await bcrypt.genSalt()
+        const hashedPass = await bcrypt.hash(req.body.password,salt)
+        console.log(salt)
+        console.log(hashedPass)
+        
+    const user ={name: req.body.name, password: hashedPass}
+    users.push(user)
+    res.status(201).send("User is valid")
+    
+    }catch{
+        res.status(500).send("There was an error")
+    }
+    
+
+
+});
+router.get('/secure/', authenticateToken, (req,res) =>{
+    res.json(users.filter((user=> user.username === req.user.name)));
+}); //for testing if it works
+
+router.post('/secure/login', async (req,res) => {
+    //Authenticate User
+    const user = users.find(user => user.name === req.body.name)
+    const acessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
+  
+    if(user == null){
+        return res.status(400).send("Cannot find the user")
+    } 
+    try{
+        if (await bcrypt.compare(req.body.password, user.password)){
+            
+            res.send({acessToken: acessToken})
+        
+        } else{
+            res.send('Unsuccesful Login')
+        }
+    
+    }catch{
+        res.status(500).send("There was an error")
+    }
+
+
+});
+
+
+function authenticateToken(req, res, next){
+    const authHeader = req.headers['authorization'] 
+    const token = authHeader && authHeader.split(' ')[1]
+    if(token == null){
+        return res.status(401)
+    }    
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err,user) => {
+        if(err) return res.sendStatus(403)
+        req.user = user
+        next()
+    })
+}
+
 
 //Convert to full time format
 function timeFormat(duration)
