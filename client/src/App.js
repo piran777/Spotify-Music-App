@@ -57,33 +57,61 @@ function App() {
   const [backendData, setBackendData] = useState([{}])
 
   const getByTrackName = useEffect(() => {
-    
-    const input = document.getElementById('track').value
-    let list = document.getElementById('inventory')
+    let list = document.getElementById('playlistTracks')
     list.replaceChildren('')
     
     if(track != '') {
       fetch(`/api/track/trackTitle/${track}`)
       .then(res => res.json()
       .then(data => {
-          const l = document.getElementById('inventory');     
-          data.forEach(element =>{
-            fetch(`/api/tracks/${element}`)
-              .then(res => res.json()
-              .then(data => {
-                const item = document.createElement('li');//need to add a list
-                item.appendChild(document.createTextNode(`Track_ID: ${data.track_id}, Track_Title: ${data.track_title}`));     
-                l.appendChild(item);
-              })
-            )
-          })
-  
+          populateTable(data);
       })
       )
     }
   },[track])
 
   
+
+
+  function populateTable(data) {
+    const l = document.getElementById('playlistTracks');     
+    data.forEach(element =>{
+      fetch(`/api/tracks/${element}`)
+        .then(res => res.json()
+        .then(data => {
+          const row = document.createElement('tbody');
+          const tr = document.createElement('tr');
+          tr.classList = "data";
+          const itemHeading = document.createElement('td');
+          const itemImage = document.createElement('td');
+          const itemTitle = document.createElement('td');
+          const itemAlbum = document.createElement('td');
+          const itemDuration = document.createElement('td');
+          const itemAdd = document.createElement('td');
+          itemHeading.className = "heading_num2";
+          itemHeading.appendChild(document.createTextNode(`${data.track_id}`));     
+          itemImage.className = "heading_image2";
+          itemImage.appendChild(document.createTextNode('')); 
+          itemTitle.className = "heading_title2";
+          itemTitle.appendChild(document.createTextNode(`${data.track_title}`)); 
+          itemAlbum.className = "heading_album2";
+          itemAlbum.appendChild(document.createTextNode(`${data.album_title}`)); 
+          itemDuration.className = "heading_duration2";
+          itemDuration.appendChild(document.createTextNode(`${data.track_duration}`)); 
+          itemAdd.className = "heading_add";
+          itemAdd.appendChild(document.createTextNode('+')); 
+          tr.appendChild(itemHeading);
+          tr.appendChild(itemImage);
+          tr.appendChild(itemTitle);
+          tr.appendChild(itemAlbum);
+          tr.appendChild(itemDuration);
+          tr.appendChild(itemAdd);
+          row.appendChild(tr);
+          l.appendChild(row);
+        })
+      )
+    })
+  }
 
   return (
     <div>

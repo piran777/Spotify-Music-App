@@ -70,10 +70,25 @@ input[type="search"]::placeholder {
     font-family: Montserrat;
 
 }
+.heading_num2 {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 15px;
+    padding-right: 15px;
+    width: 40px;
+    font-family: Montserrat;
+
+}
 .heading_image {
     padding-top: 2px;
     padding-bottom: 2px;
     padding-right: 75px;
+    font-family: Montserrat;
+}
+.heading_image2 {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-right: 55px;
     font-family: Montserrat;
 }
 .heading_title {
@@ -82,10 +97,22 @@ input[type="search"]::placeholder {
     padding-right: 400px;
     font-family: Montserrat;
 }
+.heading_title2 {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    font-family: Montserrat;
+    width: 427px;
+}
 .heading_album {
     padding-top: 2px;
     padding-bottom: 2px;
     padding-right: 400px;
+    font-family: Montserrat;
+}
+.heading_album2 {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 458px;
     font-family: Montserrat;
 }
 .heading_duration {
@@ -94,10 +121,16 @@ input[type="search"]::placeholder {
     padding-right: 100px;
     font-family: Montserrat;
 }
+.heading_duration2 {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    width: 175px;
+    font-family: Montserrat;
+}
 .heading_add {
     padding-top: 2px;
     padding-bottom: 2px;
-    padding-right: 30px;
+    padding-right: 12px;
     font-family: Montserrat;
 }
 #heading {
@@ -111,6 +144,9 @@ input[type="search"]::placeholder {
     background-color: rgb(175, 174, 174);
 }
 .data:hover {
+    background-color: rgb(175, 174, 174);
+}
+#heading:hover{
     background-color: rgb(175, 174, 174);
 }
 .trackBtn{
