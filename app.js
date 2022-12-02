@@ -360,6 +360,38 @@ router.post('/:name', (req, res) => {
     res.send('Tracks added')
 })
 
+//Deletes list with a given name
+router.delete('/:name', (req, res) => {
+    const newPlaylist = String.prototype.toLowerCase.call(req.params.name);
+    console.log("Playlist:", newPlaylist);
+
+    let temp;
+    let identical = false;
+    for(let i = 0; i < playlists.length; i++) {
+        //Check if playlist exists
+        if(String.prototype.toLowerCase.call(playlists[i].playlistname) === newPlaylist) {
+            identical = true;
+            temp = playlists[i].id;
+            playlists.splice((i), (1));
+        }
+    } 
+
+    if(identical == false) {
+        console.log('Playlist not found');
+        res.sendStatus(404);
+    } else if(identical == true) {
+        let sql = 'DROP TABLE ' + req.params.name;
+        let sqlDeleteRow = 'DELETE FROM playlistnames WHERE id =' + temp;
+        let query = db.query(sqlDeleteRow, (err) => {
+            if(err) throw err;
+            res.send("Deleted playlist " + req.params.name);
+        })
+        query = db.query(sql, (err) => {
+            if(err) throw err;
+        })
+        
+    }
+})
 
 //Get ID's of all tracks in playlist
 router.get('/tracks/:name', (req, res) => {

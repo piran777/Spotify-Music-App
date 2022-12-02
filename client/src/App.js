@@ -136,6 +136,19 @@ function App() {
       chosenTracks = [];
   }
 
+  //Deletes a chosen playlist
+  function deletePlaylist() {
+    fetch(`/api/playlist/${chosenPlaylist}`, {
+      method: 'DELETE'
+    })
+      .then(res => {
+        res.json()
+          .then(data => console.log(data))
+          .catch(console.log('Failed to get json object'))
+      })
+      .catch()
+    }
+
   //Adds track ids to an array
   function addToPlaylist(track) {
     let alreadyAdded = false;
@@ -156,7 +169,6 @@ function App() {
       t.appendChild(row);
   
       chosenTracks.push(track);
-      console.log(JSON.stringify(chosenTracks))
     } 
   }
 
@@ -430,7 +442,7 @@ function App() {
               </div>
 
               <button type="submit" className = "addToPlaylist" id = "addToPlaylist" onClick = {updatePlaylist}>Add to Playlist</button>
-              <button type="submit" className = "deletePlaylist" id = "deletePlaylist">Delete Playlist</button>
+              <button type="submit" className = "deletePlaylist" id = "deletePlaylist" onClick = {deletePlaylist}>Delete Playlist</button>
 
               <div id = 'currentList'><h1>Current Playlist: </h1>
               </div>
