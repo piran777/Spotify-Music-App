@@ -280,35 +280,63 @@ router.put('/open/:name', (req, res) => {
 
 
 
- router.post('/secure/register/unauth', async (req,res) =>{
-     try{
-         const salt = await bcrypt.genSalt()
-         const hashedPass = await bcrypt.hash(req.body.password,salt)
-         console.log(salt)
-         console.log(hashedPass)
-        
-     const user ={name: req.body.name, email: req.body.email, password: hashedPass}
-   
+ router.post('/secure/register/unauth', async (req,res) =>{ //standard registration with no auth.
+   //Authenticate User
+  // const user = users.find(user => user.name === req.body.name)
+  const salt = await bcrypt.genSalt()
+  const hashedPass = await bcrypt.hash(req.body.password, salt)
+  console.log(salt)
+  console.log(hashedPass)
 
-     let sql = `
-     INSERT INTO logininfo(
-         name,
-         email,
-         password
-     )
-    VALUES(
-            '${req.body.name}',
-            '${req.body.email}',
-            '${hashedPass}'
-     )`;
-     db.query(sql, err => {
-         if (err) throw err;
-     })
-        res.status(201).send("User is valid")
+  
+
+  const user = `SELECT * FROM logininfo WHERE name = "${req.body.name}" && email = "${req.body.email}" && password = "${hashedPass}"` ;
+  db.query(user, err => {
+      if (err) throw err;
+  }); 
+    const accessToken = generateAccessToken(user)
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
+    const newlogin = String.prototype.toLowerCase.call(req.body.email);
+    let identical = false;
     
-     }catch{
-         res.status(500).send("There was an error")
-     }
+    if(user == null){
+        return res.status(400).send("Cannot find the user")
+    }  
+     
+    try{ 
+        for(let i = 0; i < loginInfos.length; i++) {
+        //Check if playlist exists
+        if(String.prototype.toLowerCase.call(loginInfos[i].email) === newlogin) {
+            identical = true;
+        }
+    } 
+        if (await bcrypt.compare(req.body.password, hashedPass) && identical === false ){  //need to ctrl s for it to not break for some reason
+          
+            let sql = ` INSERT INTO logininfo(
+                        name,
+                        email,
+                        password
+                        
+                        )
+                        VALUES(
+                        '${req.body.name}',
+                        '${req.body.email}',
+                        '${hashedPass}'
+                        )`;
+                        db.query(sql, err => {
+                        if (err) throw err;
+                        })
+                        loginInfos.push(sql)
+                        identical == true;
+            res.send("valid email")
+        
+        } else if(identical ==true){
+            res.send('Email already in use')
+        }
+    
+    }catch{
+        res.status(500).send("There was an error")
+    }
     
     
 
@@ -336,15 +364,13 @@ router.post('/secure/register/Auth', async (req,res) => {
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
     const newlogin = String.prototype.toLowerCase.call(req.body.email);
     let identical = false;
-    let sqlUse =  `SELECT name, email, AccessToken FROM logininfo WHERE name IS NULL AND email IS NULL AND AccessToken IS NULL;`;db.query(user, (err, results )=> {
-        if (err) throw err;
-        return results;
-    }); 
+    
     if(user == null){
         return res.status(400).send("Cannot find the user")
     }  
      
-    try{   for(let i = 0; i < loginInfos.length; i++) {
+    try{ 
+        for(let i = 0; i < loginInfos.length; i++) {
         //Check if playlist exists
         if(String.prototype.toLowerCase.call(loginInfos[i].email) === newlogin) {
             identical = true;
