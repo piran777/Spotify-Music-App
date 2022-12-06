@@ -10,6 +10,7 @@ const csv = require('csv-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const emailValidator = require('deep-email-validator');
+const nodemailer = require('nodemailer');
 
 //Creates Connection
 const db = mysql.createConnection({
@@ -342,6 +343,71 @@ async function isEmailValid(email) {
     }
  });
 
+ 
+
+
+ let mailTransporter = nodemailer.createTransport({
+    service: "gmail" ,
+    auth: {
+        user: "emailverify3316@gmail.com",
+        pass: "hvdaetpavlsjelsh"
+    }
+ })
+// using a predefined file
+
+
+ router.post('/verify/email', (req,res)=>{
+   
+
+    let details = {
+        from: "emailverify3316@gmail.com",
+        to: `${req.body.email}`,
+        subject: "Your email is now verified",
+        text: "You have verified your email!"
+    }
+   const user = `SELECT email FROM logininfo WHERE email = "${req.body.email}"`;
+
+    
+
+    const accessToken = generateAccessToken(user)
+    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
+      
+
+    db.query(user, (err,results) => {
+        if (err) throw err;
+        console.log(results[0])
+        
+        if(user){
+           
+             mailTransporter.sendMail(details, (err) => {
+                 if(err) {
+                     res.send('No account with that email')
+                 }
+                 else{
+                    let sqler = `UPDATE logininfo
+                                 SET 
+                                 AccessToken = '${accessToken}',
+                                 RefreshToken = '${refreshToken}'
+                                 WHERE
+                                 email = "${req.body.email}"`;
+                                 db.query(sqler, err => {
+                                    if (err) throw err;
+                                        
+                                });
+
+                     res.send('Email is now verified')
+                 }
+              
+             })
+        }  
+    
+    });
+       
+  
+    
+  
+})
+
 router.post('/secure/login', async (req,res) =>{
     
     const user = `SELECT password FROM logininfo WHERE email = "${req.body.email}"`;
@@ -366,42 +432,6 @@ router.post('/secure/login', async (req,res) =>{
         }
     
     }); 
-
-   
-
-
-
-
-
-
-    // const email = req.body.email;
-// let user = `SELECT email FROM logininfo`
-
-// const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
-// res.json({accessToken: accessToken})
-
-
-
-
-
-
-
-//     let users = [] ;
-// let sqlusers =  `SELECT password FROM logininfo WHERE password = "${req.body.password}"`;
-// let queryUsers = db.query(sqlusers, (err, results) => {
-//     if(err) throw err;
-//     users = results;
-//     console.log(users)
-// })
-//    try{    
-//         if (await bcrypt.compare(req.body.password, users)){
-//             res.send("Nice")
-//         }
-
-
-//     }catch{
-//         res.send("Not Nice")
-//     }
     
 }); //for testing if it works
 
