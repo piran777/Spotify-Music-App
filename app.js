@@ -287,9 +287,6 @@ router.put('/open/:name', (req, res) => {
   const hashedPass = await bcrypt.hash(req.body.password, salt)
   console.log(salt)
   console.log(hashedPass)
-
-  
-
   const user = `SELECT * FROM logininfo WHERE name = "${req.body.name}" && email = "${req.body.email}" && password = "${hashedPass}"` ;
   db.query(user, err => {
       if (err) throw err;
@@ -305,7 +302,7 @@ router.put('/open/:name', (req, res) => {
      
     try{ 
         for(let i = 0; i < loginInfos.length; i++) {
-        //Check if playlist exists
+        //Check if login exists
         if(String.prototype.toLowerCase.call(loginInfos[i].email) === newlogin) {
             identical = true;
         }
@@ -315,8 +312,7 @@ router.put('/open/:name', (req, res) => {
             let sql = ` INSERT INTO logininfo(
                         name,
                         email,
-                        password
-                        
+                        password 
                         )
                         VALUES(
                         '${req.body.name}',
@@ -337,14 +333,82 @@ router.put('/open/:name', (req, res) => {
     }catch{
         res.status(500).send("There was an error")
     }
-    
-    
-
  });
 
-router.get('/secure/auth', authenticateToken, (req,res) =>{
-    res.json(users.filter(user=> user.username === req.user.name));
+router.post('/secure/login', async (req,res) =>{
+    
+
+    const user = `SELECT password FROM logininfo WHERE email = "${req.body.email}"`;
+    db.query(user, async (err,results) => {
+        if (err) throw err;
+        console.log(results)
+        console.log(req.body.password)
+        
+        if(user == null){
+            return res.status(400).send("No User")
+        }
+        try{
+            if(await bcrypt.compare(req.body.password, results[0].password.toString())){
+                res.send('Success')
+            }
+            else{
+                res.send('Incorrect password')
+            }
+        }
+        catch{
+            return res.status(500).send("You have some sort of error")
+        }
+    
+    }); 
+
+   
+
+
+
+
+
+
+    // const email = req.body.email;
+// let user = `SELECT email FROM logininfo`
+
+// const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
+// res.json({accessToken: accessToken})
+
+
+
+
+
+
+
+//     let users = [] ;
+// let sqlusers =  `SELECT password FROM logininfo WHERE password = "${req.body.password}"`;
+// let queryUsers = db.query(sqlusers, (err, results) => {
+//     if(err) throw err;
+//     users = results;
+//     console.log(users)
+// })
+//    try{    
+//         if (await bcrypt.compare(req.body.password, users)){
+//             res.send("Nice")
+//         }
+
+
+//     }catch{
+//         res.send("Not Nice")
+//     }
+    
 }); //for testing if it works
+
+
+
+
+
+
+
+
+
+
+
 
 router.post('/secure/register/Auth', async (req,res) => {
     //Authenticate User
