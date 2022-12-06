@@ -9,7 +9,7 @@ const fs = require('fs');
 const csv = require('csv-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const emailValidator = require('deep-email-validator');
 
 //Creates Connection
 const db = mysql.createConnection({
@@ -278,7 +278,10 @@ router.put('/open/:name', (req, res) => {
     res.send("Open playlist");
 });
 
-
+async function isEmailValid(email) {
+    return emailValidator.validate(email)
+  }
+  
 
  router.post('/secure/register/unauth', async (req,res) =>{ //standard registration with no auth.
    //Authenticate User
@@ -295,6 +298,7 @@ router.put('/open/:name', (req, res) => {
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
     const newlogin = String.prototype.toLowerCase.call(req.body.email);
     let identical = false;
+    const {valid, reason, validators} = await isEmailValid(req.body.email);
     
     if(user == null){
         return res.status(400).send("Cannot find the user")
@@ -307,7 +311,7 @@ router.put('/open/:name', (req, res) => {
             identical = true;
         }
     } 
-        if (await bcrypt.compare(req.body.password, hashedPass) && identical === false ){  //need to ctrl s for it to not break for some reason
+        if (await bcrypt.compare(req.body.password, hashedPass) && identical === false && valid){  //need to ctrl s for it to not break for some reason
           
             let sql = ` INSERT INTO logininfo(
                         name,
@@ -329,15 +333,17 @@ router.put('/open/:name', (req, res) => {
         } else if(identical ==true){
             res.send('Email already in use')
         }
+        else{
+            res.send('Not a Valid Email')
+        }
     
     }catch{
-        res.status(500).send("There was an error")
+        res.status(500).send("Not a Valid Email")
     }
  });
 
 router.post('/secure/login', async (req,res) =>{
     
-
     const user = `SELECT password FROM logininfo WHERE email = "${req.body.email}"`;
     db.query(user, async (err,results) => {
         if (err) throw err;
@@ -356,7 +362,7 @@ router.post('/secure/login', async (req,res) =>{
             }
         }
         catch{
-            return res.status(500).send("You have some sort of error")
+            return res.status(500).send("You have entered an inccorect Email")
         }
     
     }); 
