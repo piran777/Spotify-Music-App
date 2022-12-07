@@ -144,6 +144,18 @@ app.get('/createtableLogin', (req, res) => {
     })
 })
 
+
+app.get('/createtabledeactivate', (req, res) => {
+    let sql = 'CREATE TABLE deactivate(name VARCHAR(100) NOT NULL, email VARCHAR(100) NOT NULL, id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
+    db.query(sql, err => {
+        if (err) throw err;
+        res.send('Table Created');
+    })
+         
+})
+
+
+
 //Gets genres
 app.get('/api/genres', (req, res) => {
     res.send(genreDataFinal);
@@ -355,6 +367,20 @@ async function isEmailValid(email) {
  })
 // using a predefined file
 
+router.post('/deactivate', (req,res)=>{
+    let sqlerz = ` INSERT INTO deactivate(
+        name,
+        email
+        )
+        VALUES(
+        '${req.body.name}',
+        '${req.body.email}'
+        )`;db.query(sqlerz, err => {
+        if (err) throw err;
+        res.send('You have deactivated your account')
+        })
+});
+
 
  router.post('/verify/email', (req,res)=>{
    
@@ -418,6 +444,7 @@ router.post('/secure/login', async (req,res) =>{
         
         if(user == null){
             return res.status(400).send("No User")
+       
         }
         try{
             if(await bcrypt.compare(req.body.password, results[0].password.toString())){
