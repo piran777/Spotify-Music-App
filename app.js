@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const emailValidator = require('deep-email-validator');
 const nodemailer = require('nodemailer');
+var validator = require("email-validator");
 
 //Creates Connection
 const db = mysql.createConnection({
@@ -321,7 +322,8 @@ async function isEmailValid(email) {
             identical = true;
         }
     } 
-        if (await bcrypt.compare(req.body.password, hashedPass) && identical == false && valid){  //need to ctrl s for it to not break for some reason
+        if (await bcrypt.compare(req.body.password, hashedPass) && identical == false && validator.validate(req.body.email) // true
+){  //need to ctrl s for it to not break for some reason
           
             let sql = ` INSERT INTO logininfo(
                         name,
