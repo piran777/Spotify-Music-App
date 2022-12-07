@@ -138,7 +138,7 @@ app.get('/createtable', (req, res) => {
 })
 
 app.get('/createtableLogin', (req, res) => {
-    let sql = 'CREATE TABLE logininfo(name VARCHAR(100) NOT NULL, email VARCHAR(100) NOT NULL, password VARCHAR(100) NOT NULL, AccessToken VARCHAR(400), RefreshToken VARCHAR(400), id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
+    let sql = 'CREATE TABLE logininfo(name VARCHAR(100) NOT NULL, email VARCHAR(100) NOT NULL, password VARCHAR(100) NOT NULL, AccessToken VARCHAR(400), RefreshToken VARCHAR(400), deactivate VARCHAR(100), id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
     db.query(sql, err => {
         if (err) throw err;
         res.send('Table Created');
@@ -146,14 +146,9 @@ app.get('/createtableLogin', (req, res) => {
 })
 
 
-app.get('/createtabledeactivate', (req, res) => {
-    let sql = 'CREATE TABLE deactivate(name VARCHAR(100) NOT NULL, email VARCHAR(100) NOT NULL, id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
-    db.query(sql, err => {
-        if (err) throw err;
-        res.send('Table Created');
-    })
+
          
-})
+
 
 
 
@@ -369,17 +364,17 @@ async function isEmailValid(email) {
 // using a predefined file
 
 router.post('/deactivate', (req,res)=>{
-    let sqlerz = ` INSERT INTO deactivate(
-        name,
-        email
-        )
-        VALUES(
-        '${req.body.name}',
-        '${req.body.email}'
-        )`;db.query(sqlerz, err => {
-        if (err) throw err;
-        res.send('You have deactivated your account')
-        })
+
+        let sqler = `UPDATE logininfo
+        SET 
+       deactivate = 'True'
+        WHERE
+        email = "${req.body.email}"`;
+        db.query(sqler, err => {
+           if (err) throw err;      
+       });
+
+res.send('Your account is deactivated')
 });
 
 
@@ -437,21 +432,24 @@ router.post('/deactivate', (req,res)=>{
 
 router.post('/secure/login', async (req,res) =>{
     
-    const user = `SELECT password FROM logininfo WHERE email = "${req.body.email}"`;
+    const user = `SELECT password, deactivate FROM logininfo WHERE email = "${req.body.email}"`;
     db.query(user, async (err,results) => {
         if (err) throw err;
-        console.log(results)
-        console.log(req.body.password)
-        
-        if(user == null){
-            return res.status(400).send("No User")
-       
+          if(user == null){
+            return res.status(400).send("No User")    
         }
+    
         try{
-            if(await bcrypt.compare(req.body.password, results[0].password.toString())){
+           
+            if(await bcrypt.compare(req.body.password, results[0].password.toString()) && results[0].deactivate == null){
                 res.send('Success')
             }
+            else if(results[0].deactivate =="True"){
+                res.send('Your account has been deactivated. Please contact an admin to get it back')
+            }
+            else if((err)) throw err;
             else{
+                
                 res.send('Incorrect password')
             }
         }
@@ -460,6 +458,7 @@ router.post('/secure/login', async (req,res) =>{
         }
     
     }); 
+   
     
 }); //for testing if it works
 
@@ -474,67 +473,67 @@ router.post('/secure/login', async (req,res) =>{
 
 
 
-router.post('/secure/register/Auth', async (req,res) => {
-    //Authenticate User
-  // const user = users.find(user => user.name === req.body.name)
-  const salt = await bcrypt.genSalt()
-  const hashedPass = await bcrypt.hash(req.body.password, salt)
-  console.log(salt)
-  console.log(hashedPass)
+// router.post('/secure/register/Auth', async (req,res) => {
+//     //Authenticate User
+//   // const user = users.find(user => user.name === req.body.name)
+//   const salt = await bcrypt.genSalt()
+//   const hashedPass = await bcrypt.hash(req.body.password, salt)
+//   console.log(salt)
+//   console.log(hashedPass)
 
   
 
-  const user = `SELECT * FROM logininfo WHERE name = "${req.body.name}" && email = "${req.body.email}" && password = "${hashedPass}"` ;
-  db.query(user, err => {
-      if (err) throw err;
-  }); 
-    const accessToken = generateAccessToken(user)
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
-    const newlogin = String.prototype.toLowerCase.call(req.body.email);
-    let identical = false;
+//   const user = `SELECT * FROM logininfo WHERE name = "${req.body.name}" && email = "${req.body.email}" && password = "${hashedPass}"` ;
+//   db.query(user, err => {
+//       if (err) throw err;
+//   }); 
+//     const accessToken = generateAccessToken(user)
+//     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
+//     const newlogin = String.prototype.toLowerCase.call(req.body.email);
+//     let identical = false;
     
-    if(user == null){
-        return res.status(400).send("Cannot find the user")
-    }  
+//     if(user == null){
+//         return res.status(400).send("Cannot find the user")
+//     }  
      
-    try{ 
-        for(let i = 0; i < loginInfos.length; i++) {
-        //Check if playlist exists
-        if(String.prototype.toLowerCase.call(loginInfos[i].email) === newlogin) {
-            identical = true;
-        }
-    } 
-        if (await bcrypt.compare(req.body.password, hashedPass) && identical === false ){  //need to ctrl s for it to not break for some reason
+//     try{ 
+//         for(let i = 0; i < loginInfos.length; i++) {
+//         //Check if playlist exists
+//         if(String.prototype.toLowerCase.call(loginInfos[i].email) === newlogin) {
+//             identical = true;
+//         }
+//     } 
+//         if (await bcrypt.compare(req.body.password, hashedPass) && identical === false ){  //need to ctrl s for it to not break for some reason
           
-            let sql = ` INSERT INTO logininfo(
-                        name,
-                        email,
-                        password,
-                        AccessToken,
-                        RefreshToken
-                        )
-                        VALUES(
-                        '${req.body.name}',
-                        '${req.body.email}',
-                        '${hashedPass}',
-                        '${accessToken}',
-                        '${refreshToken}'
-                        )`;db.query(sql, err => {
-                        if (err) throw err;
-                        })
-                        loginInfos.push(sql)
-                        identical == true;
-            res.send({acessToken: accessToken, refreshToken: refreshToken})
+//             let sql = ` INSERT INTO logininfo(
+//                         name,
+//                         email,
+//                         password,
+//                         AccessToken,
+//                         RefreshToken
+//                         )
+//                         VALUES(
+//                         '${req.body.name}',
+//                         '${req.body.email}',
+//                         '${hashedPass}',
+//                         '${accessToken}',
+//                         '${refreshToken}'
+//                         )`;db.query(sql, err => {
+//                         if (err) throw err;
+//                         })
+//                         loginInfos.push(sql)
+//                         identical == true;
+//             res.send({acessToken: accessToken, refreshToken: refreshToken})
         
-        } else if(identical ==true){
-            res.send('Email already in use')
-        }
+//         } else if(identical ==true){
+//             res.send('Email already in use')
+//         }
     
-    }catch{
-        res.status(500).send("There was an error")
-    }
+//     }catch{
+//         res.status(500).send("There was an error")
+//     }
 
-});
+// }); probably not needed
 
     router.post('/token',(req, res) =>{
         const refreshToken = req.body.token
