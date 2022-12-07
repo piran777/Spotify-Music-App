@@ -139,7 +139,7 @@ app.get('/createtable', (req, res) => {
 })
 
 app.get('/createtableLogin', (req, res) => {
-    let sql = 'CREATE TABLE logininfo(name VARCHAR(100) NOT NULL, email VARCHAR(100) NOT NULL, password VARCHAR(100) NOT NULL, AccessToken VARCHAR(400), RefreshToken VARCHAR(400), deactivate VARCHAR(100), id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
+    let sql = 'CREATE TABLE logininfo(name VARCHAR(100) NOT NULL, email VARCHAR(100) NOT NULL, password VARCHAR(100) NOT NULL, AccessToken VARCHAR(400), RefreshToken VARCHAR(400), deactivate VARCHAR(100), admin VARCHAR(100), id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
     db.query(sql, err => {
         if (err) throw err;
         res.send('Table Created');
@@ -374,7 +374,7 @@ router.post('/deactivate', (req,res)=>{
 
         let sqler = `UPDATE logininfo
         SET 
-       deactivate = 'True'
+        deactivate = 'True'
         WHERE
         email = "${req.body.email}"`;
         db.query(sqler, err => {
@@ -384,6 +384,19 @@ router.post('/deactivate', (req,res)=>{
 res.send('Your account is deactivated')
 });
 
+router.post('/admin', (req,res)=>{
+
+    let sqler = `UPDATE logininfo
+    SET 
+    admin = 'True'
+    WHERE
+    email = "${req.body.email}"`;
+    db.query(sqler, err => {
+       if (err) throw err;      
+   });
+
+res.send('Your account is now an Admin')
+});
 
  router.post('/verify/email', (req,res)=>{
    
