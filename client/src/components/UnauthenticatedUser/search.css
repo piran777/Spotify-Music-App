@@ -34,7 +34,7 @@
     background-color: white;
     color: black;
     border: 2px solid #555555;
-    position:relative; left:1010px; top:54px;
+    position:relative; left:1005px; top:46px;
   }
   
   .buttonName:hover {
@@ -42,13 +42,13 @@
     color: white;
   }
   
-  .patient {
+  .track {
     background-color: white;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     border-radius: 25px;
     padding-top: 5px;
     padding-left: 20px;
-    width: 1620px;
+    width: 1020px;
     height: 790px;
     position:absolute; left:125px; top:125px;
     overflow-x: hidden;
@@ -71,80 +71,49 @@
     height: 45px;
   }
   
-  .heading_fName {
+  .heading_song {
     padding-top: 2px;
     padding-bottom: 2px;
-    padding-right: 25px;
-    width: 120px;
+    padding-right: 80px;
+    width: 310px;
     font-family: Montserrat;
   }
-  .heading_fName2 {
+  .heading_song2 {
     padding-top: 2px;
     padding-bottom: 2px;
-    padding-left: 25px;
-    padding-right: 70px;
-    width: 40px;
+    padding-left: 30px;
+    padding-right: 80px;
+    width: 340px;
     font-family: Montserrat;
   
   }
-  .heading_lName {
+  .heading_artist {
     padding-top: 2px;
     padding-bottom: 2px;
     padding-right: 45px;
-    width: 150px;
+    width: 350px;
     font-family: Montserrat;
   }
-  .heading_lName2 {
+  .heading_artist2 {
     padding-top: 2px;
     padding-bottom: 2px;
-    padding-left: 25px;
-    padding-right: 55px;
+    padding-left: 5px;
+    padding-right: 155px;
     font-family: Montserrat;
   }
-  .heading_dob {
+  .heading_youtube {
     padding-top: 2px;
     padding-bottom: 2px;
     padding-right: 40px;
-    width: 100px;
+    width: 150px;
     font-family: Montserrat;
   }
-  .heading_dob2 {
+  .heading_youtube2 {
     padding-top: 2px;
     padding-bottom: 2px;
     padding-left: 25px;
     font-family: Montserrat;
     width: 150px;
-  }
-  .heading_pNo {
-    padding-top: 2px;
-    padding-bottom: 2px;
-    padding-right: 50px;
-    font-family: Montserrat;
-  }
-  .heading_pNo2 {
-    padding-top: 2px;
-    padding-bottom: 2px;
-    width: 158px;
-    font-family: Montserrat;
-  }
-  .heading_email {
-    padding-top: 2px;
-    padding-bottom: 2px;
-    padding-left: 75px;
-    padding-right: 275px;
-    font-family: Montserrat;
-  }
-  .heading_email2 {
-    padding-top: 2px;
-    padding-bottom: 2px;
-    width: 250px;
-    font-family: Montserrat;
-  }
-  .heading_address {
-    padding-top: 2px;
-    padding-bottom: 2px;
-    padding-right: 500px;
-    font-family: Montserrat;
   }
   
   #data:hover {
@@ -153,3 +122,15 @@
   .data:hover {
     background-color: rgb(175, 174, 174);
   }
+
+  .trackInfo{
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 25px;
+    padding: 20px;
+    position:absolute; left:1300px; top:300px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 400px;
+    height: 400px;
+}
