@@ -299,14 +299,15 @@ async function isEmailValid(email) {
   const hashedPass = await bcrypt.hash(req.body.password, salt)
   console.log(salt)
   console.log(hashedPass)
-  const user = `SELECT * FROM logininfo WHERE name = "${req.body.name}" AND email = "${req.body.email}" AND password = "${hashedPass}"` ;
+
+  const user = `SELECT * FROM logininfo WHERE name = "${req.body.name}" && email = "${req.body.email}" && password = "${hashedPass}"` ;
   db.query(user, err => {
       if (err) throw err;
   }); 
     const accessToken = generateAccessToken(user)
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
     const newlogin = String.prototype.toLowerCase.call(req.body.email);
-    
+    let identical = false;
     const {valid, reason, validators} = await isEmailValid(req.body.email);
     
     if(user == null){
@@ -317,10 +318,10 @@ async function isEmailValid(email) {
         for(let i = 0; i < loginInfos.length; i++) {
         //Check if login exists
         if(String.prototype.toLowerCase.call(loginInfos[i].email) === newlogin) {
-            
+            identical = true;
         }
     } 
-        if (await bcrypt.compare(req.body.password, hashedPass) && valid){  //need to ctrl s for it to not break for some reason
+        if (await bcrypt.compare(req.body.password, hashedPass) && identical == false && valid){  //need to ctrl s for it to not break for some reason
           
             let sql = ` INSERT INTO logininfo(
                         name,
@@ -336,13 +337,21 @@ async function isEmailValid(email) {
                         if (err) throw err;
                         })
                         loginInfos.push(sql);
-            res.send("valid email")
+                        identical == true;
+                        res.send("valid email")
         
-        } else{
+        }
+        else if(identical === true){
+            res.send('Email already in use')
+        } 
+        
+        else{
             res.send('Not a Valid Email')
         }
+       
     
-    }catch{
+    }
+    catch{
         res.status(500).send("Not a Valid Email")
     }
  });
