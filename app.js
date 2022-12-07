@@ -17,7 +17,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'martin123',
-    database: 'playlistdata'
+    database: 'playlist'
 });
 
 //Connect to MySQL
@@ -463,7 +463,38 @@ router.post('/secure/login', async (req,res) =>{
 }); //for testing if it works
 
 
+router.post('/secure/updatePassword', async (req,res) =>{ 
 
+    const salt = await bcrypt.genSalt()
+    const hashedPass = await bcrypt.hash(req.body.password, salt)
+  
+    const user = `SELECT email, password, AccessToken FROM logininfo WHERE email = "${req.body.email}" AND AccessToken IS NOT NULL` ;
+    console.log(user)
+       db.query(user, (err,results) => {
+           if (err) throw err;
+
+            try{
+           if(results[0].AccessToken){
+           let sqler = `UPDATE logininfo
+                                SET 
+                                password = "${hashedPass}"
+                                WHERE
+                                email = "${req.body.email}"`;
+                                 db.query(sqler, err => {
+                                    if (err) throw err;
+                                        
+                                });
+
+                     res.send('Password is changed')
+                            }
+                        }catch{
+                            res.status(400).send('Not authenticated');
+                        }
+       }); 
+    
+
+
+});
 
 
 
