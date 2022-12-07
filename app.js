@@ -17,7 +17,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: 'martin123',
-    database: 'playlist'
+    database: 'playlistdata'
 });
 
 //Connect to MySQL
