@@ -44,7 +44,7 @@ let sqlCheck2 = 'SELECT * FROM logininfo';
 let query2 = db.query(sqlCheck2, (err, results) => {
     if(err) throw err;
     loginInfos = results;
-})
+}) 
 
 
 
@@ -136,6 +136,7 @@ app.get('/createtable', (req, res) => {
         res.send('Table Created');
     })
 })
+
 app.get('/createtableLogin', (req, res) => {
     let sql = 'CREATE TABLE logininfo(name VARCHAR(100) NOT NULL, email VARCHAR(100) NOT NULL, password VARCHAR(100) NOT NULL, AccessToken VARCHAR(400), RefreshToken VARCHAR(400), id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
     db.query(sql, err => {
