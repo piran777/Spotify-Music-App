@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 
-export const Login = (props) =>{
+export default function Login(props) {
   const[email,setEmail] = useState(""); //set email initally empty
   const[pass,setPass] = useState("");
   

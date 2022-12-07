@@ -2,27 +2,18 @@ import React, {useEffect,useState, useRef} from 'react';
 import {Route, Link, Routes, useParams} from 'react-router-dom';
 import ReactDOM from "react-dom/client";
 import './App.css';
-import Header from './components/Header';
-import Body from './components/Body';
-import Footer from './components/Footer';
-import {Login} from './Login';
-import {Register} from './Register';
-import { createPortal } from 'react-dom';
+import Header from '../Header';
+import Footer from '../Footer';
 
 let chosenTracks = [];
 let chosenPlaylist = '';
 
 function App() {
-  const params = useParams();
-  const[currentForm,setCurrentForm] = useState('Login')
-  //console.log(params)
-
   const [track,setMessageTrack] = useState('');
   const [artist,setMessageArtist] = useState('');
   const [album,setMessageAlbum] = useState('');
   const listNameRef = useRef(null);
   
-
   const handleChangeTrack = e=>{
     setMessageTrack(e.target.value);
   }
@@ -34,10 +25,6 @@ function App() {
   const handleChangeAlbum = e=>{
     setMessageAlbum(e.target.value);
   }
-
-  const toggleForm = (formName) =>{
-      setCurrentForm(formName);
-  }
   
   const handleSubmit = (e) =>{
     e.preventDefault();
@@ -45,37 +32,34 @@ function App() {
 
   useEffect(() => {
     showAllPlaylists();
-  }, [currentForm === "Body" || listNameRef])
-
+  }, [listNameRef])
 
 
   //Shows list of all playlists
   function showAllPlaylists() {
-    if(currentForm === "Body") {
-      const t = document.getElementById('allPlaylists');
-      t.replaceChildren('');
-    
-      fetch('/api/playlist')
-        .then(res => res.json()
-        .then(data => {
-          data.forEach(e => {
-            const row = document.createElement('tr');
-            const item = document.createElement('th');
+    const t = document.getElementById('allPlaylists');
+    t.replaceChildren('');
+  
+    fetch('/api/playlist')
+      .then(res => res.json()
+      .then(data => {
+        data.forEach(e => {
+          const row = document.createElement('tr');
+          const item = document.createElement('th');
 
-            item.classList = "playlistCenter";
+          item.classList = "playlistCenter";
 
-            item.addEventListener("click", function(){
-              chosenPlaylist = (item.innerText.substring(0, item.innerText.indexOf(' •')));
-              getPlaylistData(chosenPlaylist);
-            });
+          item.addEventListener("click", function(){
+            chosenPlaylist = (item.innerText.substring(0, item.innerText.indexOf(' •')));
+            getPlaylistData(chosenPlaylist);
+          });
 
-            item.appendChild(document.createTextNode(`${e.name} • ${e.counter} songs, ${e.timer} duration`));
-            row.appendChild(item);
-            t.appendChild(row);
-          })
+          item.appendChild(document.createTextNode(`${e.name} • ${e.counter} songs, ${e.timer} duration`));
+          row.appendChild(item);
+          t.appendChild(row);
         })
-        )
-    }
+      })
+      )
   }
 
   //Gets all tracks and their info from given playlist
@@ -181,7 +165,7 @@ function App() {
           populateTable(data);
       })
       )
-    } else if(track === '' && currentForm === "Body") {
+    } else if(track === '') {
       let list = document.getElementById('playlistTracks')
       list.replaceChildren('')
     }
@@ -196,7 +180,7 @@ function App() {
           populateTableArtist(data);
       })
       )
-    } else if(artist === '' && currentForm === "Body") {
+    } else if(artist === '') {
       let list = document.getElementById('playlistTracks')
       list.replaceChildren('')
     }
@@ -211,7 +195,7 @@ function App() {
           populateTable(data);
       })
       )
-    } else if(album === '' && currentForm === "Body") {
+    } else if(album === '') {
       let list = document.getElementById('playlistTracks')
       list.replaceChildren('')
     }
@@ -409,48 +393,71 @@ function App() {
   return (
     <div>
        <Header />
-      {
-        currentForm === "Login" ? <Login onFormSwitch = {toggleForm} /> : <Register onFormSwitch = {toggleForm}/>
-        &&
-        currentForm === "Body" ? <Body onFormSwitch = {toggleForm} /> : <Register onFormSwitch = {toggleForm}/>
-      }
-      
-      
-      {
-        currentForm === "Body" &&
-            <div className = "app">
-              <span>
-                <input type = "text" id = "track" placeholder = "Search by Track Name" className = "search" name ="track" onChange={handleChangeTrack} value = {track} onBlur = {() => this.inputField.value = ""} />
-                <button className = "trackBtn" id ="searchTrack" onClick={handleSubmit}>Search</button>
-              </span>
-              <span>
-                  <input type = "text" id = "artist" placeholder="Search by Artist Name" className = "search" name = "artist" onChange={handleChangeArtist} value = {artist} onBlur = {() => this.inputField.value = ""} />
-                  <button type="submit" className = "artistBtn" id = "searchArtist" onClick={handleSubmit}>Search</button>
-              </span>
-              <span>
-                  <input type = "text" id = "album" placeholder="Search by Album Name" className = "search" name = "album" onChange={handleChangeAlbum} value = {album} onBlur = {() => this.inputField.value = ""} />
-                  <button type="submit" className = "albumBtn" id = "searchAlbum" onClick={handleSubmit}>Search</button>
-              </span>
+        <div className = "app">
 
-              <button type="submit" className = "refreshPlaylists" id = "refreshPlaylists" onClick = {showAllPlaylists}>Refresh Playlists</button>
-
-              <div>
-                  <span>
-                      <input type = "text" id = "newplaylist" placeholder="New playlist name" className = "search" name = "newplaylist" ref = {listNameRef}/>
-                      <button type="submit" className = "playlistBtn" id = "addPlaylist" onClick = {addNewPlaylist}>Add</button>
-                  </span>
-              </div>
-
-              <button type="submit" className = "addToPlaylist" id = "addToPlaylist" onClick = {updatePlaylist}>Add to Playlist</button>
-              <button type="submit" className = "deletePlaylist" id = "deletePlaylist" onClick = {deletePlaylist}>Delete Playlist</button>
-
-              <div id = 'currentList'><h1>Current Playlist: </h1>
-              </div>
-
+        <div className = "playlist">
+            <div>
+                <table id = "playlistHeadings">
+                    <thead>
+                        <tr id = "heading">
+                            <th className = "heading_num">#</th>
+                            <th className = "heading_image"></th>
+                            <th className = "heading_title">Title</th>
+                            <th className = "heading_album">Album</th>
+                            <th className = "heading_duration">Duration</th>
+                            <th className = "heading_add"></th>
+                        </tr>
+                    </thead>
+                </table>
+                <table id = "playlistTracks">
+                    <tbody>
+                        <tr id = "data">
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-        
-      }
+            <ol id = "songs"></ol>
+        </div>
 
+        <div className = "playlists">
+            <table id = "allPlaylists">
+            </table>
+        </div>
+
+        <div className = "trackList">
+              <table id = "addTracks">
+              </table>
+        </div>
+
+        <span>
+          <input type = "text" id = "track" placeholder = "Search by Track Name" className = "search" name ="track" onChange={handleChangeTrack} value = {track} onBlur = {() => this.inputField.value = ""} />
+          <button className = "trackBtn" id ="searchTrack" onClick={handleSubmit}>Search</button>
+        </span>
+        <span>
+            <input type = "text" id = "artist" placeholder="Search by Artist Name" className = "search" name = "artist" onChange={handleChangeArtist} value = {artist} onBlur = {() => this.inputField.value = ""} />
+            <button type="submit" className = "artistBtn" id = "searchArtist" onClick={handleSubmit}>Search</button>
+        </span>
+        <span>
+            <input type = "text" id = "album" placeholder="Search by Album Name" className = "search" name = "album" onChange={handleChangeAlbum} value = {album} onBlur = {() => this.inputField.value = ""} />
+            <button type="submit" className = "albumBtn" id = "searchAlbum" onClick={handleSubmit}>Search</button>
+        </span>
+
+        <button type="submit" className = "refreshPlaylists" id = "refreshPlaylists" onClick = {showAllPlaylists}>Refresh Playlists</button>
+
+        <div>
+            <span>
+                <input type = "text" id = "newplaylist" placeholder="New playlist name" className = "search" name = "newplaylist" ref = {listNameRef}/>
+                <button type="submit" className = "playlistBtn" id = "addPlaylist" onClick = {addNewPlaylist}>Add</button>
+            </span>
+        </div>
+
+        <button type="submit" className = "addToPlaylist" id = "addToPlaylist" onClick = {updatePlaylist}>Add to Playlist</button>
+        <button type="submit" className = "deletePlaylist" id = "deletePlaylist" onClick = {deletePlaylist}>Delete Playlist</button>
+
+        <div id = 'currentList'><h1>Current Playlist: </h1>
+        </div>
+
+      </div>
       <Footer />
     </div>
   );
