@@ -131,7 +131,7 @@ app.get('/createdb', (req, res) => {
 
 //Create Table to store playlistnames
 app.get('/createtable', (req, res) => {
-    let sql = 'CREATE TABLE playlistnames(playlistname VARCHAR(100) NOT NULL, id int AUTO_INCREMENT NOT NULL, visibility VARCHAR(10) DEFAULT "False", rating VARCHAR(100) default "No Ratings Available", lastModified DATE DEFAULT (curdate()), PRIMARY KEY(id))';
+    let sql = 'CREATE TABLE playlistnames(playlistname VARCHAR(100) NOT NULL, id int AUTO_INCREMENT NOT NULL, visibility VARCHAR(10) DEFAULT "False", rating VARCHAR(100) default "No Ratings Available", lastModified DATE DEFAULT (curdate()), creator VARCHAR(100) default "Unknown", PRIMARY KEY(id))';
     db.query(sql, err => {
         if (err) throw err;
         res.send('Table Created');
@@ -272,8 +272,14 @@ router.put('/secure/:name', async (req, res) => {
                     let sql = 'CREATE TABLE `' + newPlaylist + '`(track_id VARCHAR(100) NOT NULL, track_duration VARCHAR(50) NOT NULL, id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
                     db.query(sql, err => {
                         if (err) throw err;
-                        addPlaylist(newPlaylist);
+
                         addToUserPlaylists(newPlaylist, req.body.email);
+
+                        let sqlCreator = 'SELECT creator from `' + name + '`';
+                        db.query(sqlCreator, (err, result) => {
+                            if (err) throw err;
+                            addPlaylist(newPlaylist, result[0].creator);
+                        })
                     })
                     
                     let sqlUpdate = 'SELECT * FROM playlistnames';
@@ -354,7 +360,7 @@ async function isEmailValid(email) {
                         identical == true;
 
             let name = req.body.email + '_playlists'
-            let sql2 = 'CREATE TABLE `'+name+'` (playlistnames VARCHAR(100) NOT NULL, description VARCHAR(1000) DEFAULT "N/A", visibility VARCHAR(10) DEFAULT "False", rating VARCHAR(100) default "No Ratings Available", lastModified DATE default (curdate()), PRIMARY KEY(playlistnames))';
+            let sql2 = 'CREATE TABLE `'+name+'` (playlistnames VARCHAR(100) NOT NULL, description VARCHAR(1000) DEFAULT "N/A", visibility VARCHAR(10) DEFAULT "False", rating VARCHAR(100) default "No Ratings Available", lastModified DATE default (curdate()), creator VARCHAR(100) default "' + req.body.name + '" PRIMARY KEY(playlistnames))';
             db.query(sql2, err => {
                 if(err) throw err;
             }) 
@@ -729,7 +735,8 @@ router.get('/unauth', (req, res) => {
         name: '',
         counter: '',
         timer: '',
-        rating: ''
+        rating: '',
+        creator: ''
     };
     let timer = 0;
     let go = 0;
@@ -764,7 +771,8 @@ router.get('/unauth', (req, res) => {
                     name: finalName,
                     counter: tempArray.counter,
                     timer: timeFormat(timer),
-                    rating: playlists[i].rating
+                    rating: playlists[i].rating,
+                    creator: playlists[i].creator
                 })
                 go += 1;
                 
@@ -784,7 +792,7 @@ router.get('/unauth', (req, res) => {
     }
 })
 
-
+//Change visibility of playlist
 router.put('/secure/visibility/:name', (req, res) => {
     const playlistToChangeVisibility = String.prototype.toLowerCase.call(req.params.name) + '_' + req.body.email;
     const name = req.body.email + "_playlists"
@@ -801,6 +809,7 @@ router.put('/secure/visibility/:name', (req, res) => {
     })
 })
 
+//Change rating of playlist
 router.put('/secure/rating/:name', (req, res) => {
     const playlistToChangeRating = String.prototype.toLowerCase.call(req.params.name) + '_' + req.body.email;
     const name = req.body.email + "_playlists"
@@ -876,13 +885,15 @@ function timeFormat(duration)
 
 
 //Add playlist name to table
-function addPlaylist(newList) {
+function addPlaylist(newList, creator) {
     let sql = `
     INSERT INTO playlistnames(
-        playlistname
+        playlistname,
+        creator
     )
     VALUES(
-        '${newList}'
+        '${newList}',
+        '${creator}'
     )`;
     db.query(sql, err => {
         if (err) throw err;

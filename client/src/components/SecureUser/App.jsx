@@ -6,7 +6,7 @@ import Header from '../Header';
 import Footer from '../Footer';
 
 let chosenTracks = [];
-let chosenPlaylist = '';
+let chosenPlaylist = ''
 
 function App() {
   const [track,setMessageTrack] = useState('');
@@ -393,8 +393,9 @@ function App() {
   return (
     <div>
        <Header />
+       
         <div className = "app">
-
+        
         <div className = "playlist">
             <div>
                 <table id = "playlistHeadings">
@@ -423,7 +424,7 @@ function App() {
             <table id = "allPlaylists">
             </table>
         </div>
-
+        
         <div className = "trackList">
               <table id = "addTracks">
               </table>
