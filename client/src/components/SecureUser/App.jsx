@@ -60,7 +60,8 @@ function App() {
     const t = document.getElementById('allPlaylists');
     t.replaceChildren('');
   
-    fetch('/api/playlist/unauth')
+    let temp = localStorage.getItem('email') + '_playlists';
+    fetch(`/api/playlist/secure/playlists/${temp}`)
       .then(res => res.json()
       .then(data => {
         data.forEach(e => {
@@ -482,7 +483,7 @@ function App() {
         <div id = 'currentList'><h1>Current Playlist: </h1>
         </div>
 
-        
+
 
       </div>
       <Footer />

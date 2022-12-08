@@ -25,8 +25,7 @@ export default function Login(props) {
         "Content-type": "application/json"
       },
       ).then(function (response) {
-        console.log(response);
-        
+        localStorage.setItem("email", data.email);
         setError(data.response)
         setTimeout(function() {
           navigate('/secure')
@@ -36,10 +35,8 @@ export default function Login(props) {
       .catch(function (error) {
         console.log(error);
         setError(JSON.stringify(data))
-       
-       
       })
-      localStorage.setItem("email", res.data[0].email);
+      
       setTimeout(function() {
         navigate('/secure')
       }, 1000);
