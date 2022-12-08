@@ -40,7 +40,7 @@ function App() {
     const t = document.getElementById('allPlaylists');
     t.replaceChildren('');
   
-    fetch('/api/playlist')
+    fetch('/api/playlist/unauth')
       .then(res => res.json()
       .then(data => {
         data.forEach(e => {
