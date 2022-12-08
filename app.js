@@ -348,7 +348,7 @@ async function isEmailValid(email) {
         } 
         
         else{
-            res.send('Not a Valid Email')
+            res.status(500).send('Not a Valid Email')
         }
        
     

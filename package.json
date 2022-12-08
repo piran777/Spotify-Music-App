@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.2.0",
     "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
     "csv-parser": "^3.0.0",
     "deep-email-validator": "^0.1.21",
     "dotenv": "^16.0.3",
