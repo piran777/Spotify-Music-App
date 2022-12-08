@@ -34,12 +34,13 @@ export default function Register(props) {
           setTimeout(function() {
             navigate('/login')
           }, 1000);
+          setError("Succesfully Logged In");
         })
         .catch(function (error) {
           console.log(error);
           alert("Not valid email")
         });
-        setError("Succesfully Logged In");
+       
       }
         catch{
           setError(error.response.data.error);
@@ -71,15 +72,15 @@ const handleChange = ({currentTarget: input}) => {
     return( 
         <div className = "auth-container">
             <h2 className = "registerTitle"> Register</h2>
-            <form className ="authFormReg" >
+            <form className ="authFormReg"  onSubmit={handleSubmit}>
                 <label htmlFor = "name">Full Name</label>
-                <input value={data.name}  onChange={handleChange} placeholder ="Enter Your Name" id="name" name="name"/>
+                <input value={data.name}  onChange={handleChange} placeholder ="Enter Your Name" id="name" name="name" required/>
                 <label htmlFor = "email">email</label>
                 <input value={data.email} onChange={handleChange } type = "email" placeholder ="youremail@example.com" id="email" name="email" required/>
                 <label htmlFor = "password">password</label>
                 <input value={data.password} onChange={handleChange} type = "password" placeholder ="*******" id="password" name="password" required/>
                 {error && <div>{error}</div>}
-                <button type = "submit" onClick={handleSubmit} >Register</button> 
+                <button type = "submit" >Register</button> 
 
                 <button className="linkBtn" onClick = {change} >Have an Account? Login</button>
                 

@@ -25,9 +25,8 @@ export default function Login(props) {
       },
       ).then(function (response) {
         console.log(response);
-        alert("Your account is now verified")
         setTimeout(function() {
-          navigate('/login')
+          navigate('/verified')
         }, 1000);  
       })
       .catch(function (error) {
@@ -79,11 +78,11 @@ export default function Login(props) {
   return(
     <div className = "auth-container"> 
       <h2 className = "loginTitle"> Verify</h2>
-      <form className ="authForm" >
+      <form className ="authForm" onSubmit={handleSubmit}>
           <label htmlFor = "email">email</label>
           <input value={data.email} onChange={handleChange} type = "email" placeholder ="youremail@example.com" id="email" name="email" required/>
           {error && <div>{error}</div>}
-          <button type = "submit" onClick={handleSubmit}>Verify</button> 
+          <button type = "submit" >Verify</button> 
           <button className="linkBtn" onClick = {change}> Don't have an account? Register</button>
           <button className = "linkBtn" onClick = {changePass}>Update your password if your verified </button>
       </form>

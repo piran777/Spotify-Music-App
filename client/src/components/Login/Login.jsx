@@ -26,14 +26,18 @@ export default function Login(props) {
       },
       ).then(function (response) {
         console.log(response);
+        
+        setError(data.response)
         setTimeout(function() {
           navigate('/secure')
         }, 1000);  
+       
       })
       .catch(function (error) {
         console.log(error);
+        setError(JSON.stringify(data))
        
-        alert("Incorrect password or email")
+       
       })
       localStorage.setItem("email", res.data[0].email);
       setTimeout(function() {
@@ -74,20 +78,34 @@ export default function Login(props) {
               setError(error.response.data.error);
           }
       }
+
+      const deactivate = async (e) =>{
+        e.preventDefault();
+        try{
+            setTimeout(function() {
+            navigate ('/deactivate')
+          }, 1000);
+        }
+        catch(error){
+            setError(error.response.data.error);
+            
+        }
+    }
     
   
   return(
     <div className = "auth-container"> 
       <h2 className = "loginTitle"> Login</h2>
-      <form className ="authForm" >
+      <form className ="authForm" onSubmit={handleSubmit}>
           <label htmlFor = "email">email</label>
-          <input value={data.email} onChange={handleChange} type = "email" placeholder ="youremail@example.com" id="email" name="email" required/>
+          <input required value={data.email} onChange={handleChange} type = "email" placeholder ="youremail@example.com" id="email" name="email"/>
           <label htmlFor = "password">password</label>
-          <input value={data.password} onChange={handleChange} type = "password" placeholder ="*******" id="password" name="password" required/>
+          <input required value={data.password} onChange={handleChange} type = "password" placeholder ="*******" id="password" name="password" />
           {error && <div>{error}</div>}
-          <button type = "submit" onClick={handleSubmit}>Log In</button> 
+          <button type = "submit" >Log In</button> 
           <button className="linkBtn" onClick = {change}>Don't have an account? Register</button>
           <button className = "linkBtn" onClick = {changeVerify}>Verify your account </button>
+          <button className = "linkBtn" onClick = {deactivate}>Want to deactivate your account? </button>
       </form>
     </div>
   )

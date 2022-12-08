@@ -360,7 +360,7 @@ async function isEmailValid(email) {
                         identical == true;
 
             let name = req.body.email + '_playlists'
-            let sql2 = 'CREATE TABLE `'+name+'` (playlistnames VARCHAR(100) NOT NULL, description VARCHAR(1000) DEFAULT "N/A", visibility VARCHAR(10) DEFAULT "False", rating VARCHAR(100) default "No Ratings Available", lastModified DATE default (curdate()), creator VARCHAR(100) default "' + req.body.name + '" PRIMARY KEY(playlistnames))';
+            let sql2 = 'CREATE TABLE `'+name+'` (playlistnames VARCHAR(100) NOT NULL, description VARCHAR(1000) DEFAULT "N/A", visibility VARCHAR(10) DEFAULT "False", rating VARCHAR(100) default "No Ratings Available", lastModified DATE default (curdate()), creator VARCHAR(100) default "' + req.body.name + '", PRIMARY KEY(playlistnames))';
             db.query(sql2, err => {
                 if(err) throw err;
             }) 
@@ -368,7 +368,7 @@ async function isEmailValid(email) {
         
         }
         else if(identical === true){
-            res.send('Email already in use')
+            res.status(500).send('Email already in use')
         } 
         
         else{
@@ -480,7 +480,7 @@ router.post('/secure/login', async (req,res) =>{
                 res.send('Success')
             }
             else if(results[0].deactivate =="True"){
-                res.send('Your account has been deactivated. Please contact an admin to get it back')
+                res.status(400).send('Your account has been deactivated. Please contact an admin to get it back')
             }
             else if((err)) throw err;
             else{
