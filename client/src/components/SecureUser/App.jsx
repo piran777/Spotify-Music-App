@@ -4,11 +4,31 @@ import ReactDOM from "react-dom/client";
 import './App.css';
 import Header from '../Header';
 import Footer from '../Footer';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 
 let chosenTracks = [];
-let chosenPlaylist = ''
+let chosenPlaylist = '';
+let playlistCreator = '';
 
 function App() {
+  const submit = () => {
+    confirmAlert({
+      title: 'Delete Confirmation',
+      message: 'Are you sure you would like to delete this playlist',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => deletePlaylist()
+        },
+        {
+          label: 'No',
+          
+        }
+      ]
+    });
+  };
+
   const [track,setMessageTrack] = useState('');
   const [artist,setMessageArtist] = useState('');
   const [album,setMessageAlbum] = useState('');
@@ -51,7 +71,8 @@ function App() {
 
           item.addEventListener("click", function(){
             chosenPlaylist = (item.innerText.substring(0, item.innerText.indexOf(' •')));
-            getPlaylistData(chosenPlaylist);
+            playlistCreator = e.creator;
+            getPlaylistData(chosenPlaylist, e.creator);
           });
 
           item.appendChild(document.createTextNode(`${e.name} • ${e.counter} songs, ${e.timer} duration`));
@@ -63,7 +84,8 @@ function App() {
   }
 
   //Gets all tracks and their info from given playlist
-  function getPlaylistData(playlist) {
+  function getPlaylistData(playlist, creator) {
+    let temp = playlist + '_' + creator;
     const list = document.getElementById('currentList');
     list.replaceChildren('');
 
@@ -72,7 +94,7 @@ function App() {
     h.appendChild(document.createTextNode(`Current Playlist: ${chosenPlaylist}`));
     list.appendChild(h);
 
-    fetch(`/api/playlist/tracks/${playlist}`)
+    fetch(`/api/playlist/tracks/${temp}`)
       .then(res => res.json() 
       .then(data => {
         let temp = [];
@@ -122,7 +144,9 @@ function App() {
 
   //Deletes a chosen playlist
   function deletePlaylist() {
-    fetch(`/api/playlist/${chosenPlaylist}`, {
+    let temp = chosenPlaylist + '_' + playlistCreator;
+
+    fetch(`/api/playlist/${temp}`, {
       method: 'DELETE'
     })
       .then(res => {
@@ -130,7 +154,7 @@ function App() {
           .then(data => console.log(data))
           .catch(console.log('Failed to get json object'))
       })
-      .catch()
+      .catch() 
     }
 
   //Adds track ids to an array
@@ -453,10 +477,12 @@ function App() {
         </div>
 
         <button type="submit" className = "addToPlaylist" id = "addToPlaylist" onClick = {updatePlaylist}>Add to Playlist</button>
-        <button type="submit" className = "deletePlaylist" id = "deletePlaylist" onClick = {deletePlaylist}>Delete Playlist</button>
+        <button type="submit" className = "deletePlaylist" id = "deletePlaylist" onClick = {submit}>Delete Playlist</button>
 
         <div id = 'currentList'><h1>Current Playlist: </h1>
         </div>
+
+        
 
       </div>
       <Footer />
