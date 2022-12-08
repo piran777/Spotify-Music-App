@@ -81,7 +81,7 @@ function App() {
           t.appendChild(row);
         })
       })
-      )
+    )
   }
 
   //Gets all tracks and their info from given playlist

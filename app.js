@@ -795,11 +795,11 @@ router.get('/unauth', (req, res) => {
 router.get('/secure/playlists/:name', (req, res) => {
     
     let temp = req.params.name;
-    let sqlSelect = 'SELECT playlistnames FROM `' + temp + '`';
+    let sqlSelect = 'SELECT * FROM `' + temp + '`';
     db.query(sqlSelect, (err, result) => {
-if(err) throw err;
-let createrplaylists =
-        let finalArray = [];
+    if(err) throw err;
+    let createrplaylists = result;
+    let finalArray = [];
     let tempArray = {
         name: '',
         counter: '',
@@ -810,57 +810,45 @@ let createrplaylists =
     let timer = 0;
     let go = 0;
 
-    let visCount = 0;
-    for(let i = 0; i < playlists.length && i < 10; i++){
+    for(let i = 0; i < createrplaylists.length; i++){
         let trackStorage;
         
-        if(playlists[i].visibility == 'True') {
-            let listName = playlists[i].playlistname;
-            let finalName = listName.split('_')[0];
-    
-            let sqlCount = 'SELECT COUNT(*) AS track_amount FROM `' + listName + '`';
-            let sqlTracks = 'SELECT track_duration FROM `' + listName + '`';
-    
-            let query = db.query(sqlCount, (err, results) => {
-                if(err) throw err;
-                tempArray.counter = results[0].track_amount;
-            })
-            query = db.query(sqlTracks, (err, results) => {
-                if(err) throw err;
-                if(timer != 0) {
-                    timer = 0;
-                }
-                trackStorage = results;
-    
-                for(let j = 0; j < trackStorage.length; j++) {
-                    timer += hmsToSecondsOnly(trackStorage[j].track_duration);
-                } 
-                            
-                finalArray.push({
-                    name: finalName,
-                    counter: tempArray.counter,
-                    timer: timeFormat(timer),
-                    rating: playlists[i].rating,
-                    creator: playlists[i].creator
-                })
-                go += 1;
-                
-                if(go == playlists.length || ((go + visCount) == playlists.length)) {
-                    res.send(finalArray);
-                }
-            })
-        } else if (playlists[i].visibility == 'False'){
-            visCount += 1;
-        } else {
-            res.sendStatus(400);
-        }
-    }
+        let listName = createrplaylists[i].playlistnames;
+        let finalName = listName.split('_')[0];
 
-    if(visCount == playlists.length || visCount == 10) {
-        res.send("No playlists available");
+        let sqlCount = 'SELECT COUNT(*) AS track_amount FROM `' + listName + '`';
+        let sqlTracks = 'SELECT track_duration FROM `' + listName + '`';
+
+        let query = db.query(sqlCount, (err, results) => {
+            if(err) throw err;
+            tempArray.counter = results[0].track_amount;
+        })
+        query = db.query(sqlTracks, (err, results) => {
+            if(err) throw err;
+            if(timer != 0) {
+                timer = 0;
+            }
+            trackStorage = results;
+
+            for(let j = 0; j < trackStorage.length; j++) {
+                timer += hmsToSecondsOnly(trackStorage[j].track_duration);
+            } 
+                        
+            finalArray.push({
+                name: finalName,
+                counter: tempArray.counter,
+                timer: timeFormat(timer),
+                rating: createrplaylists[i].rating,
+                creator: playlists[i].creator
+            })
+            go += 1;
+            
+            if(go == createrplaylists.length) {
+                res.send(finalArray);
+            }
+        })
     }
-    })
-    
+})
 })
 
 //Change visibility of playlist
@@ -986,4 +974,4 @@ app.use('/api/playlist', router);
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
-}); 
+});
