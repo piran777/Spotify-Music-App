@@ -33,7 +33,7 @@ let artistDataFinal, artistDataInitial = [];
 let trackDataFinal, trackDataInitial = [];
 
 let playlists;
-let sqlCheck = 'SELECT * FROM playlistnames';
+let sqlCheck = 'SELECT * FROM playlistnames ORDER BY lastModified';
 let query = db.query(sqlCheck, (err, results) => {
     if(err) throw err;
     playlists = results;
@@ -131,7 +131,7 @@ app.get('/createdb', (req, res) => {
 
 //Create Table to store playlistnames
 app.get('/createtable', (req, res) => {
-    let sql = 'CREATE TABLE playlistnames(playlistname VARCHAR(30) NOT NULL, id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
+    let sql = 'CREATE TABLE playlistnames(playlistname VARCHAR(100) NOT NULL, id int AUTO_INCREMENT NOT NULL, visibility VARCHAR(10) DEFAULT "False", rating VARCHAR(100) default "No Ratings Available", lastModified DATE DEFAULT (curdate()), PRIMARY KEY(id))';
     db.query(sql, err => {
         if (err) throw err;
         res.send('Table Created');
@@ -243,45 +243,57 @@ app.get('/api/artists/artist/:artist_name', (req, res) => {
 });
 
 //Create new Playlist
-router.put('/admin/:name', (req, res) => {
-    res.send("Admin playlist");
-});
+router.put('/secure/:name', async (req, res) => {
+    const newPlaylist = String.prototype.toLowerCase.call(req.params.name) + "_" + req.body.email;
+    const name = req.body.email + '_playlists';
 
-router.put('/secure/:name', (req, res) => {
-    const newPlaylist = String.prototype.toLowerCase.call(req.params.name);
     console.log("Playlist:", newPlaylist);
 
-    let identical = false;
-    for(let i = 0; i < playlists.length; i++) {
-        //Check if playlist exists
-        if(String.prototype.toLowerCase.call(playlists[i].playlistname) === newPlaylist) {
-            identical = true;
-        }
-    } 
+    let sqlCheckCount = 'SELECT COUNT(playlistnames) AS noOfPlaylists FROM `' + name + '`';
+    db.query(sqlCheckCount, (err, data) => {
+        if (err) throw err
 
-    if(identical == false) {
-        console.log('Creating new playlist');
-        let sql = 'CREATE TABLE ' + newPlaylist + '(track_id VARCHAR(100) NOT NULL, track_duration VARCHAR(50) NOT NULL, id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
-        db.query(sql, err => {
-            if (err) throw err;
-            addPlaylist(req.params.name);
-        })
-        
-        let sqlUpdate = 'SELECT * FROM playlistnames';
-        query = db.query(sqlUpdate, (err, results) => {
-            if(err) throw err;
-            let newListToAdd = {
-                playlistname: newPlaylist,
-                id: playlists[playlists.length - 1].id + 1
-            }
-            playlists.push(newListToAdd);
-            res.send(newPlaylist + ' playlist created')
-        })
-        
-    } else if(identical == true) {
-        console.log('Playlist already exists');
-        res.sendStatus(400);
-    }
+        if(data[0].noOfPlaylists == 20) {
+            res.send('Already reached max amount of creatable playlists')
+        } else {
+
+            let identical = false;
+            let sqlCheckExists = 'SELECT playlistnames FROM `' + name + '`';
+            db.query(sqlCheckExists, (err, results) => {
+                if (err) throw err;
+                for(let i = 0; i < results.length; i++) {
+                    if(String.prototype.toLowerCase.call(results[i].playlistnames) === newPlaylist) {
+                        identical = true;
+                    }
+                }
+
+                if(identical == false) {
+                    console.log('Creating new playlist');
+                    let sql = 'CREATE TABLE `' + newPlaylist + '`(track_id VARCHAR(100) NOT NULL, track_duration VARCHAR(50) NOT NULL, id int AUTO_INCREMENT NOT NULL, PRIMARY KEY(id))';
+                    db.query(sql, err => {
+                        if (err) throw err;
+                        addPlaylist(newPlaylist);
+                        addToUserPlaylists(newPlaylist, req.body.email);
+                    })
+                    
+                    let sqlUpdate = 'SELECT * FROM playlistnames';
+                    query = db.query(sqlUpdate, (err, results) => {
+                        if(err) throw err;
+                        let newListToAdd = {
+                            playlistname: newPlaylist,
+                            id: playlists[playlists.length - 1].id + 1
+                        }
+                        playlists.push(newListToAdd);
+                        res.send(newPlaylist + ' playlist created')
+                    })
+                    
+                } else if(identical == true) {
+                    console.log('Playlist already exists');
+                    res.sendStatus(400);
+                }
+            })
+        }
+    })
 });
 
 router.put('/open/:name', (req, res) => {
@@ -340,6 +352,12 @@ async function isEmailValid(email) {
                         })
                         loginInfos.push(sql);
                         identical == true;
+
+            let name = req.body.email + '_playlists'
+            let sql2 = 'CREATE TABLE `'+name+'` (playlistnames VARCHAR(100) NOT NULL, description VARCHAR(1000) DEFAULT "N/A", visibility VARCHAR(10) DEFAULT "False", rating VARCHAR(100) default "No Ratings Available", lastModified DATE default (curdate()), PRIMARY KEY(playlistnames))';
+            db.query(sql2, err => {
+                if(err) throw err;
+            }) 
                         res.send("valid email")
         
         }
@@ -704,54 +722,122 @@ router.get('/tracks/:name', (req, res) => {
     }   
 })
 
-//Get all playlists with # of tracks and total play time
-router.get('', (req, res) => {
+//Get 10 playlists with # of tracks and total play time
+router.get('/unauth', (req, res) => {
     let finalArray = [];
     let tempArray = {
         name: '',
         counter: '',
-        timer: ''
+        timer: '',
+        rating: ''
     };
     let timer = 0;
     let go = 0;
 
-    for(let i = 0; i < playlists.length; i++){
+    let visCount = 0;
+    for(let i = 0; i < playlists.length && i < 10; i++){
         let trackStorage;
-
-        let listName = playlists[i].playlistname;
-
-        let sqlCount = 'SELECT COUNT(*) AS track_amount FROM ' + listName;
-        let sqlTracks = 'SELECT track_duration FROM ' + listName;
-
-        let query = db.query(sqlCount, (err, results) => {
-            if(err) throw err;
-            tempArray.counter = results[0].track_amount;
-        })
-        query = db.query(sqlTracks, (err, results) => {
-            if(err) throw err;
-            if(timer != 0) {
-                timer = 0;
-            }
-            trackStorage = results;
-
-            for(let j = 0; j < trackStorage.length; j++) {
-                timer += hmsToSecondsOnly(trackStorage[j].track_duration);
-            } 
-                        
-            finalArray.push({
-                name: listName,
-                counter: tempArray.counter,
-                timer: timeFormat(timer)
+        
+        if(playlists[i].visibility == 'True') {
+            let listName = playlists[i].playlistname;
+            let finalName = listName.split('_')[0];
+    
+            let sqlCount = 'SELECT COUNT(*) AS track_amount FROM `' + listName + '`';
+            let sqlTracks = 'SELECT track_duration FROM `' + listName + '`';
+    
+            let query = db.query(sqlCount, (err, results) => {
+                if(err) throw err;
+                tempArray.counter = results[0].track_amount;
             })
-            go += 1;
-            
-            if(go == playlists.length) {
-                res.send(finalArray);
-            }
-        })
+            query = db.query(sqlTracks, (err, results) => {
+                if(err) throw err;
+                if(timer != 0) {
+                    timer = 0;
+                }
+                trackStorage = results;
+    
+                for(let j = 0; j < trackStorage.length; j++) {
+                    timer += hmsToSecondsOnly(trackStorage[j].track_duration);
+                } 
+                            
+                finalArray.push({
+                    name: finalName,
+                    counter: tempArray.counter,
+                    timer: timeFormat(timer),
+                    rating: playlists[i].rating
+                })
+                go += 1;
+                
+                if(go == playlists.length || ((go + visCount) == playlists.length)) {
+                    res.send(finalArray);
+                }
+            })
+        } else if (playlists[i].visibility == 'False'){
+            visCount += 1;
+        } else {
+            res.sendStatus(400);
+        }
+    }
+
+    if(visCount == playlists.length || visCount == 10) {
+        res.send("No playlists available");
     }
 })
 
+
+router.put('/secure/visibility/:name', (req, res) => {
+    const playlistToChangeVisibility = String.prototype.toLowerCase.call(req.params.name) + '_' + req.body.email;
+    const name = req.body.email + "_playlists"
+    
+    let sql = 'UPDATE `' + name + '` SET visibility = "' + req.body.visibility + '" WHERE playlistnames = "' + playlistToChangeVisibility + '"';
+    let sql2 = 'UPDATE playlistnames SET visibility = "' + req.body.visibility + '" WHERE playlistname = "' + playlistToChangeVisibility + '"';
+
+    db.query(sql, err => {
+        if (err) throw err;
+        db.query(sql2, err => {
+            if (err) throw err;
+            res.send("Playlist " + req.params.name + " visibility was set to " + req.body.visibility);
+        })
+    })
+})
+
+router.put('/secure/rating/:name', (req, res) => {
+    const playlistToChangeRating = String.prototype.toLowerCase.call(req.params.name) + '_' + req.body.email;
+    const name = req.body.email + "_playlists"
+
+    let sqlSelectRating = 'SELECT rating FROM `' + name + '` WHERE playlistnames = "' + playlistToChangeRating + '"';
+    db.query(sqlSelectRating, (err, result) => {
+        if (err) throw err;
+        if(result[0].rating == "No Ratings Available") {
+            let sql = 'UPDATE `' + name + '` SET rating = "' + req.body.rating + '" WHERE playlistnames = "' + playlistToChangeRating + '"';
+            let sql2 = 'UPDATE playlistnames SET rating = "' + req.body.rating + '" WHERE playlistname = "' + playlistToChangeRating + '"';
+        
+            db.query(sql, err => {
+                if (err) throw err;
+                db.query(sql2, err => {
+                    if (err) throw err;
+                    res.send("Playlist " + req.params.name + " rating is now " + req.body.rating);
+                })
+            })
+        } else {
+            let newRating = ((parseFloat(result[0].rating) + req.body.rating)/2)
+
+            let sql = 'UPDATE `' + name + '` SET rating = "' + newRating + '" WHERE playlistnames = "' + playlistToChangeRating + '"';
+            let sql2 = 'UPDATE playlistnames SET rating = "' + newRating + '" WHERE playlistname = "' + playlistToChangeRating + '"';
+
+            db.query(sql, err => {
+                if (err) throw err;
+                db.query(sql2, err => {
+                    if (err) throw err;
+                    res.send("Playlist " + req.params.name + " rating is now " + newRating);
+                })
+            })
+        }
+    })
+
+
+    
+})
 
 
 
@@ -798,6 +884,15 @@ function addPlaylist(newList) {
     VALUES(
         '${newList}'
     )`;
+    db.query(sql, err => {
+        if (err) throw err;
+    })
+    return;
+}
+
+function addToUserPlaylists(playlist, email) {
+    let name = email + '_playlists';
+    let sql = 'INSERT INTO `' + name + '` (playlistnames) VALUES( "'+ playlist + '")';
     db.query(sql, err => {
         if (err) throw err;
     })
