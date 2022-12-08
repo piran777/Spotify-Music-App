@@ -488,7 +488,7 @@ router.post('/secure/login', async (req,res) =>{
             else if((err)) throw err;
             else{
                 
-                res.send('Incorrect password')
+                res.status(400).send('Incorrect password')
             }
         }
         catch{

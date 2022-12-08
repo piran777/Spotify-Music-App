@@ -16,12 +16,11 @@ export default function Register(props) {
     const handleSubmit = async (e) =>{
       e.preventDefault();
 
-      setTimeout(function() {
-        navigate('/login')
-      }, 1000);
+     
         const path = `api/playlist/secure/register/unauth`;
 
-       try{ const res = await axios.post(path,{
+       try{ 
+        const res = await axios.post(path,{
           name: data.name,
           email: data.email,
           password: data.password
@@ -32,12 +31,15 @@ export default function Register(props) {
         },
         ).then(function (response) {
           console.log(response);
+          setTimeout(function() {
+            navigate('/login')
+          }, 1000);
         })
         .catch(function (error) {
           console.log(error);
           alert("Not valid email")
         });
-       
+        setError("Succesfully Logged In");
       }
         catch{
           setError(error.response.data.error);
@@ -58,7 +60,7 @@ const handleChange = ({currentTarget: input}) => {
         try{
             setTimeout(function() {
             navigate ('/login')
-          }, 1000);
+          }, 2000);
         }
         catch(error){
             setError(error.response.data.error);
@@ -75,7 +77,7 @@ const handleChange = ({currentTarget: input}) => {
                 <label htmlFor = "email">email</label>
                 <input value={data.email} onChange={handleChange } type = "email" placeholder ="youremail@example.com" id="email" name="email" required/>
                 <label htmlFor = "password">password</label>
-                <input value={data.password} onChange={handleChange} type = "password" placeholder ="*******" id="password" name="password"/>
+                <input value={data.password} onChange={handleChange} type = "password" placeholder ="*******" id="password" name="password" required/>
                 {error && <div>{error}</div>}
                 <button type = "submit" onClick={handleSubmit} >Register</button> 
 
