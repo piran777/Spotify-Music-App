@@ -5,6 +5,13 @@
   "proxy": "http://localhost:3000/",
   "homepage": ".",
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mui/base": "^5.0.0-alpha.109",
+    "@mui/icons-material": "^5.10.16",
+    "@mui/lab": "^5.0.0-alpha.111",
+    "@mui/material": "^5.10.17",
+    "@mui/styled-engine-sc": "^5.10.16",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -22,10 +29,14 @@
     "mysql2": "^2.3.3",
     "nodemailer": "^6.8.0",
     "nodemon": "^2.0.20",
+    "primeicons": "^6.0.1",
+    "primereact": "^8.7.3",
     "react": "^18.2.0",
+    "react-confirm-dialog": "^1.0.5",
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
     "sanitize-html": "^2.7.3",
+    "styled-components": "^5.3.6",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
