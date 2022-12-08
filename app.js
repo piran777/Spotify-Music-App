@@ -432,22 +432,17 @@ res.send('Your account is now an Admin')
         text: "You have verified your email!"
     }
    const user = `SELECT email FROM logininfo WHERE email = "${req.body.email}"`;
-
-    
-
-    const accessToken = generateAccessToken(user)
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
+  
+   const accessToken = generateAccessToken(user)
+   const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET)
       
 
     db.query(user, (err,results) => {
         if (err) throw err;
         console.log(results[0])
-        
-        if(user){
-           
-             mailTransporter.sendMail(details, (err) => {
-                 if(err) {
-                     res.send('No account with that email')
+                  mailTransporter.sendMail(details, (err) => {
+                 if(results[0] === undefined) {
+                     res.status(500).send('No account with that email')
                  }
                  else{
                     let sqler = `UPDATE logininfo
@@ -465,13 +460,9 @@ res.send('Your account is now an Admin')
                  }
               
              })
-        }  
+         
     
-    });
-       
-  
-    
-  
+    }); 
 })
 
 router.post('/secure/login', async (req,res) =>{
