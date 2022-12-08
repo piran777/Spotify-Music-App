@@ -372,7 +372,7 @@ async function isEmailValid(email) {
         } 
         
         else{
-            res.send('Not a Valid Email')
+            res.status(500).send('Not a Valid Email')
         }
        
     
@@ -494,7 +494,7 @@ router.post('/secure/login', async (req,res) =>{
             else if((err)) throw err;
             else{
                 
-                res.send('Incorrect password')
+                res.status(400).send('Incorrect password')
             }
         }
         catch{
