@@ -4,7 +4,6 @@ import {useNavigate} from "react-router-dom";
 import axios from 'axios';
 export default function Login(props) {
   const[email,setEmail] = useState(""); //set email initally empty
-  const[pass,setPass] = useState("");
   const [data, setData] = useState({});
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -12,13 +11,13 @@ export default function Login(props) {
   const handleSubmit = async (e) =>{
     e.preventDefault();
 
-      const path = `api/playlist/secure/login`;
+      const path = `api/playlist/verify/email`;
 
      try{ 
       
-        const res = await axios.post(path,{
-        email: data.email,
-        password: data.password
+        const res = await axios.post("api/playlist/verify/email",{
+        email: data.email
+        
       },{
         method: "POST",
         "Access-Control-Allow-Origin": null,
@@ -26,23 +25,24 @@ export default function Login(props) {
       },
       ).then(function (response) {
         console.log(response);
+        alert("Your account is now verified")
         setTimeout(function() {
-          navigate('/secure')
+          navigate('/login')
         }, 1000);  
       })
       .catch(function (error) {
         console.log(error);
        
-        alert("Incorrect password or email")
+        alert("Incorrect or email")
       })
       localStorage.setItem("email", res.data[0].email);
       setTimeout(function() {
-        navigate('/secure')
+        navigate('/login')
       }, 1000);
     }
       catch{
         setError(error.response.data.error);
-        alert("Incorrect password or email")
+        alert("Incorrect or email")
         
       }
     }
@@ -63,11 +63,11 @@ export default function Login(props) {
             }
         }
 
-        const changeVerify = async (e) =>{
+        const changePass = async (e) =>{
           e.preventDefault();
           try{
               setTimeout(function() {
-              navigate ('/verify')
+              navigate ('/account/update/password')
             }, 1000);
           }
           catch(error){
@@ -78,16 +78,14 @@ export default function Login(props) {
   
   return(
     <div className = "auth-container"> 
-      <h2 className = "loginTitle"> Login</h2>
+      <h2 className = "loginTitle"> Verify</h2>
       <form className ="authForm" >
           <label htmlFor = "email">email</label>
           <input value={data.email} onChange={handleChange} type = "email" placeholder ="youremail@example.com" id="email" name="email" required/>
-          <label htmlFor = "password">password</label>
-          <input value={data.password} onChange={handleChange} type = "password" placeholder ="*******" id="password" name="password" required/>
           {error && <div>{error}</div>}
-          <button type = "submit" onClick={handleSubmit}>Log In</button> 
-          <button className="linkBtn" onClick = {change}>Don't have an account? Register</button>
-          <button className = "linkBtn" onClick = {changeVerify}>Verify your account </button>
+          <button type = "submit" onClick={handleSubmit}>Verify</button> 
+          <button className="linkBtn" onClick = {change}> Don't have an account? Register</button>
+          <button className = "linkBtn" onClick = {changePass}>Update your password if your verified </button>
       </form>
     </div>
   )
