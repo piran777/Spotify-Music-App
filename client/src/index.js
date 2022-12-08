@@ -28,7 +28,7 @@ root.render(
       
 
 
-      <Route path = "*" element = {<p>404 Not Found</p>} />
+      <Route path = "*" element = {<Login />} />
   
   </Routes>
   </BrowserRouter>
