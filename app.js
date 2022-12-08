@@ -663,60 +663,69 @@ router.post('/:name', (req, res) => {
 
 //Deletes list with a given name
 router.delete('/:name', (req, res) => {
-    const newPlaylist = String.prototype.toLowerCase.call(req.params.name);
-    console.log("Playlist:", newPlaylist);
+    let tempNames = String.prototype.toLowerCase.call(req.params.name).split('_');
+    let sqlSelect = `SELECT playlistname FROM playlistnames WHERE playlistname LIKE "${tempNames[0]}%" AND creator = "${tempNames[1]}"`;
+    db.query(sqlSelect, (err, result) => {
+        if (err) throw err;
+        const newPlaylist = result[0].playlistname;
+        console.log("Playlist:", newPlaylist);
 
-    let temp;
-    let identical = false;
-    for(let i = 0; i < playlists.length; i++) {
-        //Check if playlist exists
-        if(String.prototype.toLowerCase.call(playlists[i].playlistname) === newPlaylist) {
-            identical = true;
-            temp = playlists[i].id;
-            playlists.splice((i), (1));
+        let temp;
+        let identical = false;
+        for(let i = 0; i < playlists.length; i++) {
+            //Check if playlist exists
+            if(String.prototype.toLowerCase.call(playlists[i].playlistname) === newPlaylist) {
+                identical = true;
+                temp = playlists[i].id;
+                playlists.splice((i), (1));
+            }
+        } 
+
+        if(identical == false) {
+            console.log('Playlist not found');
+            res.sendStatus(404);
+        } else if(identical == true) {
+            let sql = 'DROP TABLE ' + req.params.name;
+            let sqlDeleteRow = 'DELETE FROM playlistnames WHERE id =' + temp;
+            let query = db.query(sqlDeleteRow, (err) => {
+                if(err) throw err;
+                res.send("Deleted playlist " + req.params.name);
+            })
+            query = db.query(sql, (err) => {
+                if(err) throw err;
+            })
         }
-    } 
-
-    if(identical == false) {
-        console.log('Playlist not found');
-        res.sendStatus(404);
-    } else if(identical == true) {
-        let sql = 'DROP TABLE ' + req.params.name;
-        let sqlDeleteRow = 'DELETE FROM playlistnames WHERE id =' + temp;
-        let query = db.query(sqlDeleteRow, (err) => {
-            if(err) throw err;
-            res.send("Deleted playlist " + req.params.name);
-        })
-        query = db.query(sql, (err) => {
-            if(err) throw err;
-        })
-        
-    }
+    })
 })
 
 //Get ID's of all tracks in playlist
 router.get('/tracks/:name', (req, res) => {
-    const getPlaylistTracks = String.prototype.toLowerCase.call(req.params.name);
-    console.log("Playlist:", getPlaylistTracks);
+    let temp = String.prototype.toLowerCase.call(req.params.name).split('_');
+    let sqlSelect = `SELECT playlistname FROM playlistnames WHERE playlistname LIKE "${temp[0]}%" AND creator = "${temp[1]}"`;
+    db.query(sqlSelect, (err, result) => {
+        if (err) throw err;
+        const getPlaylistTracks = result[0].playlistname;
+        console.log("Playlist:", getPlaylistTracks);
 
-    let identical = false;
-    for(let i = 0; i < playlists.length; i++) {
-        //Check if playlist exists
-        if(String.prototype.toLowerCase.call(playlists[i].playlistname) == getPlaylistTracks) {
-            identical = true;
-        }
-    } 
+        let identical = false;
+        for(let i = 0; i < playlists.length; i++) {
+            //Check if playlist exists
+            if(String.prototype.toLowerCase.call(playlists[i].playlistname) == getPlaylistTracks) {
+                identical = true;
+            }
+        } 
 
-    if(identical == false) {
-        console.log('Playlist not found');
-        res.sendStatus(404);
-    } else if(identical == true) {
-        let sql = 'SELECT * FROM ' + req.params.name;
-        let query = db.query(sql, (err, results) => {
-            if(err) throw err;
-            res.send(results);
-        })
-    }   
+        if(identical == false) {
+            console.log('Playlist not found');
+            res.sendStatus(404);
+        } else if(identical == true) {
+            let sql = 'SELECT * FROM `' + getPlaylistTracks + '`';
+            let query = db.query(sql, (err, results) => {
+                if(err) throw err;
+                res.send(results);
+            })
+        }   
+    })
 })
 
 //Get 10 playlists with # of tracks and total play time
@@ -829,7 +838,7 @@ router.put('/secure/rating/:name', (req, res) => {
                 if (err) throw err;
                 db.query(sql2, err => {
                     if (err) throw err;
-                    res.send("Playlist " + req.params.name + " rating is now " + newRating);
+                    res.send("Playlist " + req.params.name + " rating is now " + newRating + "/10");
                 })
             })
         }
