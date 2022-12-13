@@ -2,7 +2,7 @@
   "name": "se3316-lab4",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:3000/",
+  "proxy": "http://ec2-54-242-91-90.compute-1.amazonaws.com:3000/",
   "homepage": ".",
   "dependencies": {
     "@emotion/react": "^11.10.5",
