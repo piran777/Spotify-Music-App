@@ -17,7 +17,7 @@ var validator = require("email-validator");
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'martin123',
+    password: '', //fill with ur DB password on mySQL
     database: 'playlistdata'
 });
 
