@@ -49,7 +49,7 @@ let query2 = db.query(sqlCheck2, (err, results) => {
 
 
 
-fs.createReadStream('lab3-data/raw_artists.csv')
+fs.createReadStream('raw_artists.csv')
 .pipe(csv())
 .on('data', (rows) => {
     artistDataInitial.push(rows)
@@ -68,7 +68,7 @@ fs.createReadStream('lab3-data/raw_artists.csv')
 .on ('end', () => {
 });
 
-fs.createReadStream('lab3-data/genres.csv')
+fs.createReadStream('genres.csv')
 .pipe(csv())
 .on('data', (rows) => {
     genreDataInitial.push(rows)
@@ -83,7 +83,7 @@ fs.createReadStream('lab3-data/genres.csv')
 .on ('end', () => {
 });
 
-fs.createReadStream('lab3-data/raw_tracks.csv')
+fs.createReadStream('raw_tracks.csv')
 .pipe(csv())
 .on('data', (rows) => {
     trackDataInitial.push(rows)
